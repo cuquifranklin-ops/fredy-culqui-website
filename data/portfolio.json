@@ -2,6 +2,15 @@
   "heroVideo": "",
   "items": [
     {
+      "id": "1795058879042",
+      "title": "Trabajo 2",
+      "category": "retratos",
+      "description": "",
+      "type": "image",
+      "src": "assets/uploads/1795058872038_DSC04936-Editar-2.jpg",
+      "featured": true
+    },
+    {
       "id": "1795058803252",
       "title": "Trabajo 1",
       "category": "retratos",
