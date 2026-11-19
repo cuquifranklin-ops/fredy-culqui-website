@@ -27,6 +27,20 @@
   ],
   "items": [
     {
+      "id": "1795106693231",
+      "title": "Cine v1",
+      "category": "retratos",
+      "projectType": "Sesión Fotográfica",
+      "client": "",
+      "year": "2026",
+      "description": "",
+      "type": "image",
+      "src": "assets/uploads/1795106691280_cine10.webp",
+      "gallery": [],
+      "tags": [],
+      "featured": false
+    },
+    {
       "id": "1795070668599",
       "title": "ClubNocturno",
       "category": "audiovisual",
