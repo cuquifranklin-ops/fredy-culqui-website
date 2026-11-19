@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fredy Culqui - Fotógrafo & Filmmaker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #18060a 0%, #050505 100%);
+        }
+
+        #video-fondo {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            filter: brightness(0.35);
+            display: none;
+        }
+
+        .hero-text {
+            max-width: 820px;
+            padding: 2rem;
+            z-index: 2;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 4.2rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+
+        .hero .subtitle {
+            font-size: 1.35rem;
+            color: var(--accent);
+            margin-bottom: 1.25rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .hero .description {
+            font-size: 1.1rem;
+            color: var(--secondary);
+            margin-bottom: 2.25rem;
+            max-width: 600px;
+            margin-inline: auto;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .features-section,
+        .services-section {
+            padding: 80px 0;
+            background: var(--bg-dark);
+        }
+
+        .style-section,
+        .social-section {
+            padding: 80px 0;
+            background: #080808;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .features-grid,
+        .services-grid,
+        .mini-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 1.75rem;
+        }
+
+        .feature-card,
+        .service-card,
+        .social-card {
+            padding: 2.25rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-base);
+        }
+
+        .feature-card {
+            text-align: center;
+        }
+
+        .feature-card:hover,
+        .service-card:hover,
+        .social-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--accent);
+        }
+
+        .feature-icon {
+            width: 68px;
+            height: 68px;
+            margin: 0 auto 1.25rem;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: #ffffff;
+        }
+
+        .service-icon {
+            width: 54px;
+            height: 54px;
+            margin-bottom: 1.25rem;
+            background: var(--accent-soft);
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            color: var(--accent);
+        }
+
+        .feature-card h3,
+        .service-card h3 {
+            font-size: 1.35rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card p,
+        .service-card p {
+            color: var(--secondary);
+            margin-bottom: 1.25rem;
+        }
+
+        .service-features {
+            list-style: none;
+        }
+
+        .service-features li {
+            color: var(--secondary);
+            padding: 0.45rem 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.92rem;
+        }
+
+        .service-features li:last-child {
+            border-bottom: none;
+        }
+
+        .mini-gallery {
+            margin-bottom: 2.5rem;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            aspect-ratio: 4/5;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+        }
+
+        .gallery-item img,
+        .gallery-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform var(--transition-slow);
+        }
+
+        .gallery-item:hover img,
+        .gallery-item:hover video {
+            transform: scale(1.05);
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(transparent 35%, rgba(0, 0, 0, 0.9) 100%);
+            display: flex;
+            align-items: flex-end;
+            padding: 1.5rem;
+        }
+
+        .overlay-content span {
+            color: var(--accent);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .overlay-content h4 {
+            font-size: 1.2rem;
+            margin: 0.25rem 0;
+        }
+
+        .overlay-content p {
+            color: var(--secondary);
+            font-size: 0.88rem;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .social-header {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-header i {
+            font-size: 1.8rem;
+            color: var(--accent);
+        }
+
+        .follower-count {
+            color: var(--secondary);
+            font-size: 0.88rem;
+            margin-left: auto;
+        }
+
+        .btn-social {
+            width: 100%;
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-social:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">
+            <a href="index.html" style="color: inherit; text-decoration: none;">Fredy <span>Culqui</span></a>
+        </div>
+        <i class="fas fa-bars menu-toggle"></i>
+        <ul>
+            <li><a href="index.html" class="active">Inicio</a></li>
+            <li><a href="sobre-mi.html">Sobre Mí</a></li>
+            <li><a href="portafolio.html">Portafolio</a></li>
+            <li><a href="paquetes.html">Paquetes</a></li>
+            <li><a href="agendar.html">Agendar</a></li>
+            <li><a href="contacto.html">Contacto</a></li>
+            <li><a href="login.html" class="btn-login">Panel Admin</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero">
+        <video id="video-fondo" autoplay muted loop playsinline></video>
+        <div class="hero-text">
+            <h1>Fredy Culqui</h1>
+            <p class="subtitle">Fotógrafo & Filmmaker</p>
+            <p class="description">Capturando emociones, contando historias a través de la lente. Especializado en fotografía cinematográfica, retratos y producción audiovisual.</p>
+            <div class="btn-container">
+                <a href="portafolio.html" class="btn btn-primary">
+                    <i class="fas fa-images"></i> Ver Portafolio
+                </a>
+                <a href="agendar.html" class="btn btn-outline">
+                    <i class="fas fa-calendar-check"></i> Agendar Sesión
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="features-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Por Qué Elegirme</h2>
+                <p>Comprometido con la excelencia y la creatividad en cada proyecto</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-camera"></i></div>
+                    <h3>Calidad Profesional</h3>
+                    <p>Equipo de última generación y técnica avanzada para resultados excepcionales en cada sesión.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-heart"></i></div>
+                    <h3>Enfoque Emocional</h3>
+                    <p>Capturo la esencia única de cada momento, creando imágenes que evocan emociones genuinas.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                    <h3>Entrega Rápida</h3>
+                    <p>Proceso ágil y eficiente manteniendo los más altos estándares de edición y color.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="style-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Trabajos Destacados</h2>
+                <p>Últimas producciones publicadas directamente desde el estudio</p>
+            </div>
+            <div class="mini-gallery" id="featuredGallery">
+                <!-- Se carga automáticamente desde data/portfolio.json -->
+            </div>
+            <div class="text-center">
+                <a href="portafolio.html" class="btn btn-outline">
+                    <i class="fas fa-arrow-right"></i> Ver Portafolio Completo
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="services-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Servicios</h2>
+                <p>Soluciones visuales a medida para marcas, eventos y proyectos personales</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-camera"></i></div>
+                    <h3>Sesiones Fotográficas</h3>
+                    <p>Sesiones personalizadas en estudio o locación en Cajamarca y todo el Perú.</p>
+                    <ul class="service-features">
+                        <li>Retratos individuales y conceptuales</li>
+                        <li>Fotografía comercial y de producto</li>
+                        <li>Bodas y eventos sociales</li>
+                        <li>15 años y celebraciones</li>
+                    </ul>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-video"></i></div>
+                    <h3>Producción Audiovisual</h3>
+                    <p>Videoclips, reels comerciales y contenido audiovisual con enfoque cinematográfico.</p>
+                    <ul class="service-features">
+                        <li>Videoclips musicales</li>
+                        <li>Reels y TikToks de alto impacto</li>
+                        <li>Videos corporativos</li>
+                        <li>Cobertura audiovisual de eventos</li>
+                    </ul>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-film"></i></div>
+                    <h3>Edición Profesional</h3>
+                    <p>Postproducción de video y fotografía con colorimetría cinematográfica.</p>
+                    <ul class="service-features">
+                        <li>Color grading profesional</li>
+                        <li>Retoque fotográfico editorial</li>
+                        <li>Diseño sonoro y montaje</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="social-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Sígueme en Redes</h2>
+                <p>Detrás de cámaras, reels y proyectos recientes</p>
+            </div>
+            <div class="social-grid">
+                <div class="social-card" data-social="instagram">
+                    <div class="social-header">
+                        <i class="fab fa-instagram"></i>
+                        <h3>Instagram</h3>
+                        <span class="follower-count">@fredy_culqui</span>
+                    </div>
+                    <a href="https://www.instagram.com/fredy_culqui" target="_blank" class="btn btn-social">
+                        <i class="fab fa-instagram"></i> Seguir en Instagram
+                    </a>
+                </div>
+                <div class="social-card" data-social="tiktok">
+                    <div class="social-header">
+                        <i class="fab fa-tiktok"></i>
+                        <h3>TikTok</h3>
+                        <span class="follower-count">@fredy_culqui</span>
+                    </div>
+                    <a href="https://www.tiktok.com/@fredy_culqui" target="_blank" class="btn btn-social">
+                        <i class="fab fa-tiktok"></i> Seguir en TikTok
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Fredy Culqui</h3>
+                <p>Fotógrafo & Filmmaker profesional especializado en contar historias a través de la imagen.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/fredy_culqui" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.tiktok.com/@fredy_culqui" target="_blank"><i class="fab fa-tiktok"></i></a>
+                    <a href="mailto:fredyculqui@gmail.com"><i class="fas fa-envelope"></i></a>
+                    <a href="https://wa.me/51967620685" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Enlaces Rápidos</h4>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="sobre-mi.html">Sobre Mí</a></li>
+                    <li><a href="portafolio.html">Portafolio</a></li>
+                    <li><a href="agendar.html">Agendar Sesión</a></li>
+                    <li><a href="contacto.html">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Servicios</h4>
+                <ul>
+                    <li><a href="portafolio.html?filter=retratos">Retratos</a></li>
+                    <li><a href="portafolio.html?filter=artistico">Artístico</a></li>
+                    <li><a href="portafolio.html?filter=15-anos">15 Años</a></li>
+                    <li><a href="portafolio.html?filter=audiovisual">Audiovisual</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contacto</h4>
+                <div class="contact-info">
+                    <p><i class="fas fa-envelope"></i> fredyculqui@gmail.com</p>
+                    <p><i class="fas fa-phone"></i> +51 967 620 685</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Cajamarca, Perú</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Fredy Culqui. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/portfolio.js"></script>
+</body>
+</html>

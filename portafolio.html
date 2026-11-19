@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portafolio - Fredy Culqui</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/navbar.css">
+  <link rel="stylesheet" href="css/portfolio.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">
+            <a href="index.html" style="color: inherit; text-decoration: none;">Fredy <span>Culqui</span></a>
+        </div>
+        <i class="fas fa-bars menu-toggle"></i>
+        <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="sobre-mi.html">Sobre Mí</a></li>
+            <li><a href="portafolio.html" class="active">Portafolio</a></li>
+            <li><a href="paquetes.html">Paquetes</a></li>
+            <li><a href="agendar.html">Agendar</a></li>
+            <li><a href="contacto.html">Contacto</a></li>
+            <li><a href="login.html" class="btn-login">Panel Admin</a></li>
+        </ul>
+    </nav>
+
+    <section class="portfolio-hero" id="portfolioHero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>Portafolio</h1>
+                    <p class="subtitle">Colección oficial de fotografía y producción audiovisual</p>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="number" id="totalProjectsStat">0</span>
+                        <span class="label">Proyectos</span>
+                    </div>
+                    <div class="stat">
+                        <span class="number">5+</span>
+                        <span class="label">Años Exp.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="filters-section" id="portfolioFilters">
+        <div class="container">
+            <div class="filters-container">
+                <div class="filter-group">
+                    <button class="filter-btn filter-category active" data-category="all">
+                        <i class="fas fa-th"></i> Todo
+                    </button>
+                    <button class="filter-btn filter-category" data-category="retratos">
+                        <i class="fas fa-user"></i> Retratos
+                    </button>
+                    <button class="filter-btn filter-category" data-category="artistico">
+                        <i class="fas fa-palette"></i> Artístico
+                    </button>
+                    <button class="filter-btn filter-category" data-category="15-anos">
+                        <i class="fas fa-crown"></i> 15 Años
+                    </button>
+                    <button class="filter-btn filter-category" data-category="audiovisual">
+                        <i class="fas fa-video"></i> Audiovisual
+                    </button>
+                </div>
+                <div class="view-controls">
+                    <button class="view-btn active" data-view="grid" title="Vista Cuadrícula">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button class="view-btn" data-view="masonry" title="Vista Editorial">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="portfolio-grid-section">
+        <div class="container">
+            <div class="portfolio-grid grid-view" id="portfolioGrid">
+                <!-- Se carga dinámicamente desde data/portfolio.json -->
+            </div>
+        </div>
+    </section>
+
+    <!-- MODAL VISOR -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
+            <button class="modal-nav modal-prev" id="modalPrev"><i class="fas fa-chevron-left"></i></button>
+            <button class="modal-nav modal-next" id="modalNext"><i class="fas fa-chevron-right"></i></button>
+            <div class="modal-media-container">
+                <div id="modalMedia"></div>
+                <div class="modal-info">
+                    <h3 id="modalTitle"></h3>
+                    <p id="modalDescription"></p>
+                    <span class="modal-category" id="modalCategory"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN DE COMENTARIOS -->
+    <section class="testimonials-section" id="commentsSection">
+        <div class="container">
+            <div class="section-header">
+                <h2>Opiniones de Clientes</h2>
+                <p>Lo que dicen las personas sobre mi trabajo</p>
+            </div>
+
+            <div class="comment-form-container">
+                <div class="comment-form">
+                    <h3>Deja tu opinión</h3>
+                    <form id="commentForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="clientName">Tu Nombre *</label>
+                                <input type="text" id="clientName" name="clientName" required placeholder="Ej: María González">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientProject">Proyecto o Sesión *</label>
+                                <select id="clientProject" name="clientProject" required>
+                                    <option value="">Selecciona un proyecto</option>
+                                    <option value="Retrato Individual">Retrato Individual</option>
+                                    <option value="Sesión de Pareja">Sesión de Pareja</option>
+                                    <option value="Boda">Boda</option>
+                                    <option value="15 Años">15 Años</option>
+                                    <option value="Videoclip Musical">Videoclip Musical</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="clientComment">Tu Opinión *</label>
+                            <textarea id="clientComment" name="clientComment" required placeholder="Cuéntanos tu experiencia trabajando conmigo..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Publicar Opinión
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="testimonials-grid" id="commentsContainer"></div>
+        </div>
+    </section>
+
+    <footer id="contacto">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Fredy Culqui</h3>
+                <p>Fotógrafo & Filmmaker profesional especializado en contar historias a través de la imagen.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/fredy_culqui" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.tiktok.com/@fredy_culqui" target="_blank"><i class="fab fa-tiktok"></i></a>
+                    <a href="mailto:fredyculqui@gmail.com"><i class="fas fa-envelope"></i></a>
+                    <a href="https://wa.me/51967620685" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Enlaces Rápidos</h4>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="sobre-mi.html">Sobre Mí</a></li>
+                    <li><a href="portafolio.html">Portafolio</a></li>
+                    <li><a href="agendar.html">Agendar Sesión</a></li>
+                    <li><a href="contacto.html">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Servicios</h4>
+                <ul>
+                    <li><a href="portafolio.html?filter=retratos">Retratos</a></li>
+                    <li><a href="portafolio.html?filter=artistico">Artístico</a></li>
+                    <li><a href="portafolio.html?filter=15-anos">15 Años</a></li>
+                    <li><a href="portafolio.html?filter=audiovisual">Audiovisual</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contacto</h4>
+                <div class="contact-info">
+                    <p><i class="fas fa-envelope"></i> fredyculqui@gmail.com</p>
+                    <p><i class="fas fa-phone"></i> +51 967 620 685</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Cajamarca, Perú</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Fredy Culqui. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/portfolio.js"></script>
+    <script src="js/comments.js"></script>
+</body>
+</html>
