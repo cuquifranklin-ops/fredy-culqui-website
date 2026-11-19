@@ -27,6 +27,20 @@
   ],
   "items": [
     {
+      "id": "1795106856133",
+      "title": "Cine v4",
+      "category": "retratos",
+      "projectType": "Sesión Fotográfica",
+      "client": "",
+      "year": "2026",
+      "description": "",
+      "type": "image",
+      "src": "assets/uploads/1795106854245_Cine1.webp",
+      "gallery": [],
+      "tags": [],
+      "featured": false
+    },
+    {
       "id": "1795106810785",
       "title": "Cine v3",
       "category": "retratos",
