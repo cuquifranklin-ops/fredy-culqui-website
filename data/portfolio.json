@@ -1,31 +1,55 @@
 {
+  "heroImage": "",
+  "aboutImage": "",
   "heroVideo": "",
+  "showreelVideo": "",
+  "categories": [
+    { "slug": "retratos", "name": "Retratos" },
+    { "slug": "artistico", "name": "Artístico" },
+    { "slug": "15-anos", "name": "15 Años" },
+    { "slug": "audiovisual", "name": "Audiovisual" }
+  ],
   "items": [
     {
       "id": "1795058957103",
       "title": "Trabajo 3",
       "category": "retratos",
+      "projectType": "Sesión Fotográfica",
+      "client": "",
+      "year": "2026",
       "description": "",
       "type": "image",
       "src": "assets/uploads/1795058951992_DSC04960-Editar-Editar.jpg",
+      "gallery": [],
+      "tags": [],
       "featured": true
     },
     {
       "id": "1795058879042",
       "title": "Trabajo 2",
       "category": "retratos",
+      "projectType": "Sesión Fotográfica",
+      "client": "",
+      "year": "2026",
       "description": "",
       "type": "image",
       "src": "assets/uploads/1795058872038_DSC04936-Editar-2.jpg",
+      "gallery": [],
+      "tags": [],
       "featured": true
     },
     {
       "id": "1795058803252",
       "title": "Trabajo 1",
       "category": "retratos",
+      "projectType": "Audiovisual / Reel",
+      "client": "",
+      "year": "2026",
       "description": "",
       "type": "image",
       "src": "https://www.tiktok.com/@club_khaos/video/7708568593797090580?is_from_webapp=1&sender_device=pc",
+      "gallery": [],
+      "tags": [],
       "featured": true
     }
   ]
