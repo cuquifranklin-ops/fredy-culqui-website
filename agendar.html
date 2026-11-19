@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendar Sesión - Fredy Culqui</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .page-hero {
+            padding: 145px 0 70px;
+            background: radial-gradient(circle at top center, #1f070c 0%, #050505 80%);
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .page-hero .badge {
+            display: inline-block;
+            padding: 0.35rem 1rem;
+            border-radius: 50px;
+            background: var(--accent-soft);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 1rem;
+        }
+        .page-hero h1 { font-size: 3.1rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.75rem; }
+        .page-hero p { color: var(--secondary); max-width: 620px; margin: 0 auto; font-size: 1.05rem; }
+        .page-section { padding: 75px 0; }
+        .card-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 2.25rem;
+            transition: all var(--transition-base);
+        }
+        .card-box:hover { border-color: rgba(225, 29, 72, 0.5); }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-size: 0.9rem; font-weight: 500; margin-bottom: 0.45rem; color: var(--primary); }
+        .form-control {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            background: #080808;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+        .form-control:focus { outline: none; border-color: var(--accent); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .booking-layout { display: grid; grid-template-columns: 1.4fr 1fr; gap: 2.5rem; align-items: start; }
+
+        .section-subhead {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 1.5rem 0 0.85rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-subhead i { color: var(--accent); }
+
+        .addons-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+        .addon-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.7rem;
+            padding: 0.85rem 0.95rem;
+            border-radius: 10px;
+            background: #080808;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: border-color 0.2s ease, background 0.2s ease;
+        }
+        .addon-option:hover { border-color: rgba(225, 29, 72, 0.55); }
+        .addon-option input[type="checkbox"] {
+            margin-top: 0.2rem;
+            accent-color: var(--accent);
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .addon-option.checked {
+            border-color: var(--accent);
+            background: rgba(225, 29, 72, 0.08);
+        }
+        .addon-info { flex: 1; }
+        .addon-title { display: block; font-size: 0.9rem; font-weight: 600; color: var(--primary); }
+        .addon-sub { display: block; font-size: 0.78rem; color: var(--secondary); margin-top: 0.15rem; }
+        .addon-price { font-size: 0.86rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
+
+        .offer-box {
+            margin-top: 1rem;
+            padding: 1rem 1.15rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(225, 29, 72, 0.14), rgba(16, 185, 129, 0.08));
+            border: 1px dashed rgba(255, 77, 115, 0.65);
+        }
+        .offer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .offer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #ff6b8b;
+        }
+        .offer-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: #a7f3d0;
+            cursor: pointer;
+        }
+        .offer-toggle input { accent-color: #10b981; width: 16px; height: 16px; cursor: pointer; }
+        .offer-desc { font-size: 0.85rem; color: #d4d4d4; margin-top: 0.45rem; line-height: 1.45; }
+
+        .included-box {
+            background: #080808;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1rem;
+        }
+        .included-box small {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+        .included-box p { font-size: 0.88rem; color: #d4d4d4; line-height: 1.45; }
+
+        .summary-item { display: flex; justify-content: space-between; gap: 0.75rem; padding: 0.7rem 0; border-bottom: 1px solid var(--border-color); font-size: 0.92rem; }
+        .summary-item span:first-child { color: var(--secondary); }
+        .summary-item span:last-child { font-weight: 600; color: var(--primary); text-align: right; }
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 1rem 0 0.5rem;
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+        .summary-total .total-amount { color: var(--accent); font-size: 1.45rem; }
+        .summary-discount { color: #10b981 !important; }
+        .summary-adelanto { font-size: 0.85rem; color: var(--secondary); margin-bottom: 1rem; }
+
+        .step-list { list-style: none; margin-top: 1.25rem; }
+        .step-list li { display: flex; gap: 0.85rem; margin-bottom: 0.9rem; color: var(--secondary); font-size: 0.9rem; }
+        .step-num {
+            width: 26px; height: 26px; border-radius: 50%;
+            background: var(--accent-soft); border: 1px solid var(--accent); color: var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.8rem; flex-shrink: 0;
+        }
+        .alert-success {
+            display: none;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid #10b981;
+            color: #a7f3d0;
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin-top: 1.25rem;
+            font-size: 0.95rem;
+        }
+        @media (max-width: 900px) { .booking-layout { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) {
+            .form-row, .addons-grid { grid-template-columns: 1fr; }
+            .page-hero h1 { font-size: 2.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo"><a href="index.html" style="color: inherit; text-decoration: none;">Fredy <span>Culqui</span></a></div>
+        <i class="fas fa-bars menu-toggle"></i>
+        <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="sobre-mi.html">Sobre Mí</a></li>
+            <li><a href="portafolio.html">Portafolio</a></li>
+            <li><a href="paquetes.html">Paquetes</a></li>
+            <li><a href="agendar.html" class="active">Agendar</a></li>
+            <li><a href="contacto.html">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <section class="page-hero">
+        <div class="container">
+            <span class="badge">Reserva Online</span>
+            <h1>Agendar Sesión</h1>
+            <p>Tu paquete seleccionado llega preconfigurado. Personaliza extras, aplica la oferta activa y envía tu reserva por WhatsApp o correo.</p>
+        </div>
+    </section>
+
+    <section class="page-section">
+        <div class="container">
+            <div class="booking-layout">
+                <div class="card-box">
+                    <h2 style="margin-bottom:1.5rem; font-size:1.5rem;">Datos y Personalización de Reserva</h2>
+                    <form id="bookingForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="clientName">Nombre Completo *</label>
+                                <input type="text" id="clientName" class="form-control" placeholder="Ej. Camila Rojas" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientPhone">WhatsApp / Teléfono *</label>
+                                <input type="tel" id="clientPhone" class="form-control" placeholder="Ej. +51 999 888 777" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="clientEmail">Correo Electrónico *</label>
+                                <input type="email" id="clientEmail" class="form-control" placeholder="tu@correo.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="serviceType">Paquete Seleccionado *</label>
+                                <select id="serviceType" class="form-control" required>
+                                    <option value="Esencial Retrato" data-price="180" data-category="Fotografía" data-summary="1h exterior | 15 fotos editadas | 2 outfits">Esencial Retrato (S/ 180)</option>
+                                    <option value="Editorial y Marca" data-price="280" data-category="Fotografía" data-summary="1.5h (2 locaciones) | 25 fotos editoriales | 3 outfits">Editorial & Marca (S/ 280)</option>
+                                    <option value="Sesion Pareja o Bestie" data-price="240" data-category="Fotografía" data-summary="1.5h exterior | 22 fotos editadas | 2 outfits">Sesión Pareja / Bestie (S/ 240)</option>
+                                    <option value="Pack Reels y TikTok 4K" data-price="260" data-category="Filmmaking / Video" data-summary="Rodaje 4K | 3 Reels editados | Color pro">Pack Reels / TikTok 4K (S/ 260)</option>
+                                    <option value="Video Comercial y Marca" data-price="450" data-category="Filmmaking / Video" data-summary="2.5h rodaje 4K | Video principal + 2 cortes | Guion y color">Video Comercial / Marca (S/ 450)</option>
+                                    <option value="Videoclip y Pieza de Autor" data-price="680" data-category="Filmmaking / Video" data-summary="4h rodaje 4K | Videoclip + Teaser | Dirección visual">Videoclip / Pieza de Autor (S/ 680)</option>
+                                    <option value="Hibrido Foto y Reel" data-price="350" data-category="Híbrido Foto + Video" data-summary="2h sesión | 25 fotos | 1 Reel 4K | 3 outfits" selected>Híbrido Foto + Reel (S/ 350)</option>
+                                    <option value="15 Anos y Eventos" data-price="750" data-category="Eventos" data-summary="Previa + Evento | 80+ fotos | Video resumen 3-5m">15 Años / Eventos (S/ 750)</option>
+                                    <option value="Cobertura Mensual Marca" data-price="950" data-category="Plan Mensual Marca" data-summary="2 jornadas | 40 fotos | 6 Reels 4K | Banco clips">Cobertura Mensual Marca (S/ 950)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="included-box">
+                            <small><i class="fas fa-circle-check"></i> Incluido automáticamente en el paquete</small>
+                            <p id="packageIncludedText">2h sesión | 25 fotos | 1 Reel 4K | 3 outfits</p>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="sessionDate">Fecha Preferida *</label>
+                                <input type="date" id="sessionDate" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sessionTime">Horario Preferido *</label>
+                                <select id="sessionTime" class="form-control" required>
+                                    <option value="09:00 AM (Mañana)">09:00 AM — Luz suave de mañana</option>
+                                    <option value="03:30 PM (Golden Hour)" selected>03:30 PM — Hora Dorada (Recomendado)</option>
+                                    <option value="06:30 PM (Nocturna / Flash)">06:30 PM — Sesión Nocturna / Flash</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="section-subhead"><i class="fas fa-plus-circle"></i> Extras Opcionales (Si deseas agregar algo)</div>
+                        <div class="addons-grid" id="addonsContainer">
+                            <label class="addon-option" data-addon-label="Reel 4K Extra (30-45s)">
+                                <input type="checkbox" class="addon-checkbox" data-price="90" data-name="Reel 4K Extra">
+                                <div class="addon-info">
+                                    <span class="addon-title">Reel 4K Extra</span>
+                                    <span class="addon-sub">Video vertical editado con color pro</span>
+                                </div>
+                                <span class="addon-price">+S/ 90</span>
+                            </label>
+
+                            <label class="addon-option" data-addon-label="10 Fotos Editadas Extra">
+                                <input type="checkbox" class="addon-checkbox" data-price="75" data-name="10 Fotos Extra">
+                                <div class="addon-info">
+                                    <span class="addon-title">+10 Fotos Editadas</span>
+                                    <span class="addon-sub">Selección y retoque en alta resolución</span>
+                                </div>
+                                <span class="addon-price">+S/ 75</span>
+                            </label>
+
+                            <label class="addon-option" data-addon-label="Locación Adicional / Movilidad">
+                                <input type="checkbox" class="addon-checkbox" data-price="60" data-name="Locación Extra">
+                                <div class="addon-info">
+                                    <span class="addon-title">Locación / Ruta Extra</span>
+                                    <span class="addon-sub">Traslado a nueva locación cercana</span>
+                                </div>
+                                <span class="addon-price">+S/ 60</span>
+                            </label>
+
+                            <label class="addon-option" data-addon-label="Entrega Express (48h)">
+                                <input type="checkbox" class="addon-checkbox" data-price="80" data-name="Entrega Express 48h">
+                                <div class="addon-info">
+                                    <span class="addon-title">Entrega Express 48h</span>
+                                    <span class="addon-sub">Prioridad de edición en 2 días hábiles</span>
+                                </div>
+                                <span class="addon-price">+S/ 80</span>
+                            </label>
+
+                            <label class="addon-option" data-addon-label="Iluminación LED / Flash Cine">
+                                <input type="checkbox" class="addon-checkbox" data-price="85" data-name="Luz Cine / Flash">
+                                <div class="addon-info">
+                                    <span class="addon-title">Esquema Luz Cine / Flash</span>
+                                    <span class="addon-sub">Iluminación dedicada para foto o video</span>
+                                </div>
+                                <span class="addon-price">+S/ 85</span>
+                            </label>
+
+                            <label class="addon-option" data-addon-label="Audio Corbatero / Micrófono">
+                                <input type="checkbox" class="addon-checkbox" data-price="55" data-name="Audio Micrófono">
+                                <div class="addon-info">
+                                    <span class="addon-title">Captura de Audio Pro</span>
+                                    <span class="addon-sub">Micrófono inalámbrico para entrevistas/reels</span>
+                                </div>
+                                <span class="addon-price">+S/ 55</span>
+                            </label>
+                        </div>
+
+                        <div class="offer-box">
+                            <div class="offer-header">
+                                <span class="offer-badge"><i class="fas fa-fire"></i> Oferta Especial de Temporada · 15% OFF</span>
+                                <label class="offer-toggle">
+                                    <input type="checkbox" id="applyOffer" checked>
+                                    Aplicar oferta (-15%)
+                                </label>
+                            </div>
+                            <p class="offer-desc">Válida reservando con adelanto del 30% en fechas disponibles de foto, video o híbrido. Aplica sobre tu paquete y extras seleccionados.</p>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 1.25rem;">
+                            <label for="sessionLocation">Locación, Idea Creativa o Pedido Adicional</label>
+                            <textarea id="sessionLocation" rows="4" class="form-control" placeholder="Cuéntame dónde te gustaría grabar/fotografiar, referencias visuales, vestuario o cualquier detalle extra que quieras agregar..."></textarea>
+                        </div>
+
+                        <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+                            <button type="submit" class="btn btn-primary btn-large" style="flex:1; min-width:220px;">
+                                <i class="fab fa-whatsapp"></i> Enviar Reserva por WhatsApp
+                            </button>
+                            <button type="button" id="emailBookingBtn" class="btn btn-outline btn-large">
+                                <i class="fas fa-envelope"></i> Enviar por Correo
+                            </button>
+                        </div>
+
+                        <div class="alert-success" id="bookingSuccess">
+                            <i class="fas fa-check-circle"></i> ¡Listo! Se preparó tu solicitud de reserva con el paquete, extras y oferta aplicada. Si no se abrió tu app automáticamente, revisa tu bloqueador de ventanas emergentes.
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-box">
+                    <h3 style="margin-bottom:1.1rem; font-size:1.3rem;">Resumen de tu Reserva</h3>
+                    <div class="summary-item">
+                        <span>Categoría</span>
+                        <span id="sumCategory">Híbrido Foto + Video</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Paquete</span>
+                        <span id="sumService">Híbrido Foto + Reel</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Precio Base</span>
+                        <span id="sumBasePrice">S/ 350</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Extras agregados</span>
+                        <span id="sumAddons">Ninguno (S/ 0)</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Oferta (15% OFF)</span>
+                        <span id="sumDiscount" class="summary-discount">-S/ 53</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Fecha</span>
+                        <span id="sumDate">Por definir</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Horario</span>
+                        <span id="sumTime">03:30 PM (Golden Hour)</span>
+                    </div>
+                    <div class="summary-total">
+                        <span>Total Estimado</span>
+                        <span class="total-amount" id="sumTotal">S/ 297</span>
+                    </div>
+                    <p class="summary-adelanto" id="sumDeposit">Adelanto sugerido (30%): S/ 89 para bloquear fecha.</p>
+
+                    <ul class="step-list">
+                        <li>
+                            <span class="step-num">1</span>
+                            <span>Llega con tu paquete ya marcado o cámbialo aquí mismo y suma los extras que desees.</span>
+                        </li>
+                        <li>
+                            <span class="step-num">2</span>
+                            <span>Confirma disponibilidad de fecha y horario directamente conmigo por WhatsApp o correo.</span>
+                        </li>
+                        <li>
+                            <span class="step-num">3</span>
+                            <span>Bloquea tu fecha con el 30% de adelanto (Yape, Plin o transferencia) y definimos el concepto.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Fredy Culqui</h3>
+                <p>Fotógrafo & Filmmaker profesional especializado en contar historias a través de la imagen.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/fredy_culqui" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.tiktok.com/@fredy_culqui" target="_blank"><i class="fab fa-tiktok"></i></a>
+                    <a href="mailto:fredyculqui@gmail.com"><i class="fas fa-envelope"></i></a>
+                    <a href="https://wa.me/51967620685" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Enlaces Rápidos</h4>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="sobre-mi.html">Sobre Mí</a></li>
+                    <li><a href="portafolio.html">Portafolio</a></li>
+                    <li><a href="paquetes.html">Paquetes</a></li>
+                    <li><a href="agendar.html">Agendar Sesión</a></li>
+                    <li><a href="contacto.html">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="privacy.html">Política de Privacidad</a></li>
+                    <li><a href="terms.html">Términos y Condiciones</a></li>
+                    <li><a href="cookies.html">Política de Cookies</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contacto</h4>
+                <div class="contact-info">
+                    <p><i class="fas fa-envelope"></i> fredyculqui@gmail.com</p>
+                    <p><i class="fas fa-phone"></i> +51 967 620 685</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Cajamarca, Perú</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom"><p>&copy; 2026 Fredy Culqui. Todos los derechos reservados.</p></div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const paqueteParam = params.get('paquete');
+            const precioParam = params.get('precio');
+            const tipoParam = params.get('tipo');
+            const resumenParam = params.get('resumen');
+
+            const serviceSelect = document.getElementById('serviceType');
+            const dateInput = document.getElementById('sessionDate');
+            const timeSelect = document.getElementById('sessionTime');
+            const applyOfferCheckbox = document.getElementById('applyOffer');
+            const addonCheckboxes = Array.from(document.querySelectorAll('.addon-checkbox'));
+
+            // Establecer fecha mínima hoy
+            const today = new Date().toISOString().split('T')[0];
+            if (dateInput) dateInput.min = today;
+
+            // Preseleccionar paquete si viene por URL
+            if (paqueteParam && serviceSelect) {
+                let matched = Array.from(serviceSelect.options).find(opt => opt.value === paqueteParam);
+                if (!matched) {
+                    matched = document.createElement('option');
+                    matched.value = paqueteParam;
+                    matched.textContent = paqueteParam + (precioParam ? ` (S/ ${precioParam})` : '');
+                    matched.dataset.price = precioParam || '0';
+                    matched.dataset.category = tipoParam || 'Personalizado';
+                    matched.dataset.summary = resumenParam || 'Paquete seleccionado desde el catálogo';
+                    serviceSelect.appendChild(matched);
+                } else {
+                    if (precioParam) matched.dataset.price = precioParam;
+                    if (tipoParam) matched.dataset.category = tipoParam;
+                    if (resumenParam) matched.dataset.summary = resumenParam;
+                }
+                serviceSelect.value = matched.value;
+            }
+
+            function getCalculation() {
+                const selectedOpt = serviceSelect.options[serviceSelect.selectedIndex];
+                const basePrice = Number(selectedOpt.dataset.price || 0);
+                const category = selectedOpt.dataset.category || 'Sesión';
+                const summary = selectedOpt.dataset.summary || '';
+
+                const selectedAddons = addonCheckboxes
+                    .filter(cb => cb.checked)
+                    .map(cb => ({ name: cb.dataset.name, price: Number(cb.dataset.price || 0) }));
+
+                const addonsTotal = selectedAddons.reduce((acc, item) => acc + item.price, 0);
+                const subtotal = basePrice + addonsTotal;
+                const offerActive = applyOfferCheckbox.checked;
+                const discount = offerActive ? Math.round(subtotal * 0.15) : 0;
+                const total = Math.max(0, subtotal - discount);
+                const deposit = Math.round(total * 0.30);
+
+                return {
+                    packageName: selectedOpt.value,
+                    category,
+                    summary,
+                    basePrice,
+                    selectedAddons,
+                    addonsTotal,
+                    subtotal,
+                    offerActive,
+                    discount,
+                    total,
+                    deposit
+                };
+            }
+
+            function updateSummary() {
+                const calc = getCalculation();
+
+                document.getElementById('packageIncludedText').textContent = calc.summary;
+                document.getElementById('sumCategory').textContent = calc.category;
+                document.getElementById('sumService').textContent = calc.packageName;
+                document.getElementById('sumBasePrice').textContent = `S/ ${calc.basePrice}`;
+
+                if (calc.selectedAddons.length === 0) {
+                    document.getElementById('sumAddons').textContent = 'Ninguno (S/ 0)';
+                } else {
+                    const names = calc.selectedAddons.map(a => a.name).join(', ');
+                    document.getElementById('sumAddons').textContent = `${names} (+S/ ${calc.addonsTotal})`;
+                }
+
+                const discountEl = document.getElementById('sumDiscount');
+                if (calc.offerActive) {
+                    discountEl.textContent = `-S/ ${calc.discount}`;
+                    discountEl.classList.add('summary-discount');
+                } else {
+                    discountEl.textContent = 'S/ 0 (No aplicada)';
+                    discountEl.classList.remove('summary-discount');
+                }
+
+                document.getElementById('sumDate').textContent = dateInput.value || 'Por definir';
+                document.getElementById('sumTime').textContent = timeSelect.value;
+                document.getElementById('sumTotal').textContent = `S/ ${calc.total}`;
+                document.getElementById('sumDeposit').textContent = `Adelanto sugerido (30%): S/ ${calc.deposit} para bloquear fecha.`;
+            }
+
+            addonCheckboxes.forEach(cb => {
+                cb.addEventListener('change', function() {
+                    const label = this.closest('.addon-option');
+                    if (label) label.classList.toggle('checked', this.checked);
+                    updateSummary();
+                });
+            });
+
+            serviceSelect.addEventListener('change', updateSummary);
+            dateInput.addEventListener('change', updateSummary);
+            timeSelect.addEventListener('change', updateSummary);
+            applyOfferCheckbox.addEventListener('change', updateSummary);
+
+            updateSummary();
+
+            function buildMessage() {
+                const calc = getCalculation();
+                const name = document.getElementById('clientName').value.trim() || 'No especificado';
+                const phone = document.getElementById('clientPhone').value.trim() || 'No especificado';
+                const email = document.getElementById('clientEmail').value.trim() || 'No especificado';
+                const location = document.getElementById('sessionLocation').value.trim() || 'Por coordinar';
+                const addonsText = calc.selectedAddons.length
+                    ? calc.selectedAddons.map(a => `${a.name} (+S/ ${a.price})`).join(', ')
+                    : 'Ninguno';
+                const offerText = calc.offerActive ? `Sí (-15% OFF: -S/ ${calc.discount})` : 'No aplicada';
+
+                return [
+                    'Hola Fredy, quiero solicitar una reserva:',
+                    `• Nombre: ${name}`,
+                    `• Teléfono: ${phone}`,
+                    `• Correo: ${email}`,
+                    `• Categoría: ${calc.category}`,
+                    `• Paquete: ${calc.packageName} (S/ ${calc.basePrice})`,
+                    `• Incluye: ${calc.summary}`,
+                    `• Extras: ${addonsText}`,
+                    `• Oferta 15% OFF: ${offerText}`,
+                    `• Total Estimado: S/ ${calc.total} (Adelanto 30%: S/ ${calc.deposit})`,
+                    `• Fecha: ${dateInput.value || 'Por definir'}`,
+                    `• Horario: ${timeSelect.value}`,
+                    `• Locación / Detalles extra: ${location}`
+                ].join('\n');
+            }
+
+            const bookingForm = document.getElementById('bookingForm');
+            const successBox = document.getElementById('bookingSuccess');
+
+            bookingForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (!bookingForm.checkValidity()) {
+                    bookingForm.reportValidity();
+                    return;
+                }
+                const msg = encodeURIComponent(buildMessage());
+                window.open(`https://wa.me/51967620685?text=${msg}`, '_blank');
+                successBox.style.display = 'block';
+            });
+
+            document.getElementById('emailBookingBtn').addEventListener('click', function() {
+                if (!bookingForm.checkValidity()) {
+                    bookingForm.reportValidity();
+                    return;
+                }
+                const calc = getCalculation();
+                const subject = encodeURIComponent(`Reserva: ${calc.packageName} - ${document.getElementById('clientName').value.trim()}`);
+                const body = encodeURIComponent(buildMessage());
+                window.location.href = `mailto:fredyculqui@gmail.com?subject=${subject}&body=${body}`;
+                successBox.style.display = 'block';
+            });
+        })();
+    </script>
+</body>
+</html>
