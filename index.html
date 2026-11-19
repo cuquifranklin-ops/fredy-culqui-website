@@ -144,7 +144,13 @@
             font-size: 0.85rem;
         }
 
-        /* Tarjetas visuales flotantes a la derecha del Hero */
+        /* Columna derecha del Hero: tarjetas + botones de redes debajo */
+        .hero-right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.15rem;
+        }
+
         .hero-visual-stack {
             position: relative;
             height: 510px;
@@ -250,6 +256,44 @@
             color: var(--secondary);
         }
 
+        .hero-social-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.85rem;
+        }
+
+        .hero-social-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            padding: 0.78rem 1rem;
+            border-radius: 10px;
+            background: rgba(17, 17, 17, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all var(--transition-base);
+        }
+
+        .hero-social-btn i {
+            color: var(--accent);
+            font-size: 1.05rem;
+        }
+
+        .hero-social-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .hero-social-btn:hover i {
+            color: #ffffff;
+        }
+
         @media (max-width: 960px) {
             .hero {
                 min-height: auto;
@@ -287,10 +331,12 @@
                 padding-top: 1.25rem;
             }
             .metric-item strong { font-size: 1.4rem; }
-            .hero-visual-stack {
+            .hero-right-column {
                 max-width: 390px;
                 width: 100%;
                 margin: 0 auto;
+            }
+            .hero-visual-stack {
                 height: 360px;
             }
             .hero-card-main {
@@ -324,8 +370,10 @@
                 gap: 0.75rem;
                 text-align: center;
             }
-            .hero-visual-stack {
+            .hero-right-column {
                 max-width: 340px;
+            }
+            .hero-visual-stack {
                 height: 320px;
             }
             .hero-card-main {
@@ -335,6 +383,9 @@
             .hero-card-secondary {
                 width: 46%;
                 height: 145px;
+            }
+            .hero-social-buttons {
+                grid-template-columns: 1fr;
             }
             .features-section, .services-section, .style-section, .social-section {
                 padding: 55px 0;
@@ -562,24 +613,35 @@
                 </div>
             </div>
 
-            <div class="hero-visual-stack">
-                <div class="hero-floating-tag">
-                    <i class="fas fa-camera-retro"></i>
-                    <div>
-                        <strong>Edición Editorial</strong>
-                        <span>Colorimetría profesional</span>
+            <div class="hero-right-column">
+                <div class="hero-visual-stack">
+                    <div class="hero-floating-tag">
+                        <i class="fas fa-camera-retro"></i>
+                        <div>
+                            <strong>Edición Editorial</strong>
+                            <span>Colorimetría profesional</span>
+                        </div>
+                    </div>
+                    <div class="hero-card-main">
+                        <img id="heroMainImage" src="assets/uploads/1795058951992_DSC04960-Editar-Editar.jpg" alt="Sesión Fotográfica Fredy Culqui">
+                    </div>
+                    <div class="hero-card-secondary" id="heroVideoCard">
+                        <video id="heroShowreelVideo" autoplay muted loop playsinline style="display:none;"></video>
+                        <div class="hero-video-placeholder" id="heroVideoPlaceholder">
+                            <i class="fas fa-film"></i>
+                            <strong>Showreel Filmmaker</strong>
+                            <span>Súbelo desde Admin</span>
+                        </div>
                     </div>
                 </div>
-                <div class="hero-card-main">
-                    <img id="heroMainImage" src="assets/uploads/1795058951992_DSC04960-Editar-Editar.jpg" alt="Sesión Fotográfica Fredy Culqui">
-                </div>
-                <div class="hero-card-secondary" id="heroVideoCard">
-                    <video id="heroShowreelVideo" autoplay muted loop playsinline style="display:none;"></video>
-                    <div class="hero-video-placeholder" id="heroVideoPlaceholder">
-                        <i class="fas fa-film"></i>
-                        <strong>Showreel Filmmaker</strong>
-                        <span>Súbelo desde Admin</span>
-                    </div>
+
+                <div class="hero-social-buttons">
+                    <a href="https://www.instagram.com/fredy_culqui" target="_blank" rel="noopener noreferrer" class="hero-social-btn">
+                        <i class="fab fa-instagram"></i> Instagram
+                    </a>
+                    <a href="https://www.tiktok.com/@fredy_culqui" target="_blank" rel="noopener noreferrer" class="hero-social-btn">
+                        <i class="fab fa-tiktok"></i> TikTok
+                    </a>
                 </div>
             </div>
         </div>
