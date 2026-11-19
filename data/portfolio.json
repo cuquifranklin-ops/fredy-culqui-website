@@ -27,6 +27,20 @@
   ],
   "items": [
     {
+      "id": "1795106765243",
+      "title": "Cine v2",
+      "category": "retratos",
+      "projectType": "Sesión Fotográfica",
+      "client": "Gemelas",
+      "year": "2026",
+      "description": "",
+      "type": "image",
+      "src": "assets/uploads/1795106763035_cine6.jpg",
+      "gallery": [],
+      "tags": [],
+      "featured": false
+    },
+    {
       "id": "1795106693231",
       "title": "Cine v1",
       "category": "retratos",
