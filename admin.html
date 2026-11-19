@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Administrador - Fredy Culqui</title>
+    <title>Panel Administrador Pro - Fredy Culqui</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
@@ -17,6 +17,9 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
         }
 
         .admin-topbar h1 {
@@ -34,11 +37,11 @@
         }
 
         .admin-main {
-            max-width: 1200px;
+            max-width: 1320px;
             margin: 2rem auto;
             padding: 0 1.5rem 4rem;
             display: grid;
-            grid-template-columns: 1fr 1.4fr;
+            grid-template-columns: 1.05fr 1.45fr;
             gap: 2rem;
             align-items: start;
         }
@@ -52,7 +55,7 @@
         }
 
         .panel-card h2 {
-            font-size: 1.2rem;
+            font-size: 1.18rem;
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
@@ -63,6 +66,12 @@
             color: var(--accent);
         }
 
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.85rem;
+        }
+
         .form-group {
             margin-bottom: 1rem;
         }
@@ -70,7 +79,7 @@
         .form-group label {
             display: block;
             margin-bottom: 0.4rem;
-            font-size: 0.88rem;
+            font-size: 0.86rem;
             color: var(--secondary);
         }
 
@@ -83,7 +92,8 @@
             border: 1px solid var(--border-color);
             border-radius: 6px;
             color: #ffffff;
-            font-size: 0.95rem;
+            font-size: 0.93rem;
+            font-family: inherit;
         }
 
         .form-group input:focus,
@@ -97,13 +107,16 @@
             display: flex;
             align-items: center;
             gap: 0.6rem;
-            margin: 1rem 0;
+            margin: 0.65rem 0;
             cursor: pointer;
+            font-size: 0.9rem;
+            color: #e5e5e5;
         }
 
         .checkbox-row input {
             width: auto;
             accent-color: var(--accent);
+            cursor: pointer;
         }
 
         .status-box {
@@ -135,9 +148,63 @@
             color: #ffffff;
         }
 
+        .category-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.9rem;
+        }
+
+        .cat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            background: #0a0a0a;
+            border: 1px solid var(--border-color);
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            color: #e5e5e5;
+        }
+
+        .cat-chip button {
+            background: none;
+            border: none;
+            color: #fda4af;
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 0;
+        }
+
+        .list-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.15rem;
+        }
+
+        .filter-mini-row {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.15rem;
+        }
+
+        .filter-mini-row input,
+        .filter-mini-row select {
+            padding: 0.55rem 0.8rem;
+            background: #0a0a0a;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.86rem;
+        }
+
         .items-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
             gap: 1rem;
         }
 
@@ -169,8 +236,20 @@
             left: 8px;
             background: var(--accent);
             color: #fff;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             font-weight: 700;
+            padding: 3px 7px;
+            border-radius: 4px;
+        }
+
+        .badge-type {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 0.66rem;
             padding: 3px 7px;
             border-radius: 4px;
         }
@@ -187,28 +266,29 @@
             color: var(--accent);
             text-transform: uppercase;
             font-weight: 700;
-            font-size: 0.72rem;
+            font-size: 0.7rem;
         }
 
         .admin-item-body h4 {
-            font-size: 0.98rem;
+            font-size: 0.96rem;
             margin: 0.25rem 0;
         }
 
         .admin-item-body p {
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             color: var(--secondary);
             margin-bottom: 0.75rem;
         }
 
         .admin-item-actions {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.4rem;
+            flex-wrap: wrap;
         }
 
         .btn-sm {
-            padding: 0.45rem 0.75rem;
-            font-size: 0.8rem;
+            padding: 0.42rem 0.65rem;
+            font-size: 0.78rem;
             flex: 1;
         }
 
@@ -223,8 +303,27 @@
             color: #ffffff;
         }
 
-        @media (max-width: 900px) {
+        .preview-box {
+            margin-top: 0.6rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .preview-box img,
+        .preview-box video {
+            width: 68px;
+            height: 68px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 980px) {
             .admin-main {
+                grid-template-columns: 1fr;
+            }
+            .form-row-2 {
                 grid-template-columns: 1fr;
             }
         }
@@ -232,33 +331,43 @@
 </head>
 <body>
     <header class="admin-topbar">
-        <h1>Fredy <span>Culqui</span> · Panel de Control</h1>
+        <h1>Fredy <span>Culqui</span> · Panel de Control Pro</h1>
         <div class="topbar-actions">
             <a href="index.html" target="_blank" class="btn btn-outline btn-sm"><i class="fas fa-home"></i> Ver Inicio</a>
+            <a href="sobre-mi.html" target="_blank" class="btn btn-outline btn-sm"><i class="fas fa-user"></i> Ver Sobre Mí</a>
             <a href="portafolio.html" target="_blank" class="btn btn-outline btn-sm"><i class="fas fa-images"></i> Ver Portafolio</a>
-            <button id="logoutBtn" class="btn btn-primary btn-sm"><i class="fas fa-sign-out-alt"></i> Salir</button>
+            <button type="button" id="logoutBtn" class="btn btn-primary btn-sm"><i class="fas fa-sign-out-alt"></i> Salir</button>
         </div>
     </header>
 
     <main class="admin-main">
-        <!-- COLUMNA IZQUIERDA: CONFIG GITHUB + SUBIR NUEVO -->
+        <!-- COLUMNA IZQUIERDA -->
         <div>
+            <!-- 1. CONEXIÓN GITHUB -->
             <div class="panel-card">
                 <h2><i class="fab fa-github"></i> Conexión a tu Repositorio GitHub</h2>
-                <p style="color: var(--secondary); font-size: 0.85rem; margin-bottom: 1rem;">
-                    Configúralo una sola vez. Se guarda en tu navegador para publicar y borrar directamente en tu web.
+                <p style="color: var(--secondary); font-size: 0.84rem; margin-bottom: 1rem;">
+                    Configúralo una sola vez. Permite subir fotos, videos, categorías y proyectos directamente a tu repositorio.
                 </p>
-                <div class="form-group">
-                    <label>Usuario de GitHub (Owner)</label>
-                    <input type="text" id="ghOwner" placeholder="Ej: fredyculqui">
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Usuario de GitHub (Owner)</label>
+                        <input type="text" id="ghOwner" placeholder="Ej: fredyculqui">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre del Repositorio</label>
+                        <input type="text" id="ghRepo" placeholder="Ej: fredy-culqui-website">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Nombre del Repositorio</label>
-                    <input type="text" id="ghRepo" placeholder="Ej: fredy-culqui-website">
-                </div>
-                <div class="form-group">
-                    <label>Rama (Branch)</label>
-                    <input type="text" id="ghBranch" value="main" placeholder="main">
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Rama (Branch)</label>
+                        <input type="text" id="ghBranch" value="main" placeholder="main">
+                    </div>
+                    <div class="form-group">
+                        <label>Carpeta Base en Repo (opcional)</label>
+                        <input type="text" id="ghBasePath" placeholder="Ej: fredy-culqui-website-v2 o vacío">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Personal Access Token (Permiso: repo / contents)</label>
@@ -269,44 +378,104 @@
                 </button>
             </div>
 
+            <!-- 2. GESTOR DE CATEGORÍAS -->
             <div class="panel-card">
-                <h2><i class="fas fa-cloud-upload-alt"></i> Subir Nuevo Trabajo</h2>
+                <h2><i class="fas fa-tags"></i> Categorías del Portafolio</h2>
+                <p style="color: var(--secondary); font-size: 0.84rem; margin-bottom: 0.85rem;">
+                    Agrega o elimina categorías (fotografía, video, marca, eventos, campañas, etc.).
+                </p>
+                <div class="form-row-2">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Nombre de Categoría</label>
+                        <input type="text" id="newCategoryName" placeholder="Ej: Videoclips / Marca">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Slug / Identificador (opcional)</label>
+                        <input type="text" id="newCategorySlug" placeholder="Ej: videoclips">
+                    </div>
+                </div>
+                <button type="button" id="addCategoryBtn" class="btn btn-outline" style="width:100%; margin-top:0.85rem;">
+                    <i class="fas fa-plus"></i> Agregar y Guardar Categoría
+                </button>
+                <div class="category-chips" id="categoryChipsList"></div>
+            </div>
+
+            <!-- 3. SUBIR / EDITAR PROYECTO -->
+            <div class="panel-card">
+                <h2 id="formCardTitle"><i class="fas fa-cloud-upload-alt"></i> Subir Nuevo Proyecto</h2>
                 <div id="statusBox" class="status-box"></div>
 
                 <form id="uploadForm">
+                    <input type="hidden" id="editingItemId" value="">
+
                     <div class="form-group">
                         <label>Título del Proyecto *</label>
-                        <input type="text" id="itemTitle" required placeholder="Ej: Sesión Editorial Nocturna">
+                        <input type="text" id="itemTitle" required placeholder="Ej: Campaña Editorial Otoño o Videoclip 4K">
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label>Categoría *</label>
+                            <select id="itemCategory" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de Proyecto</label>
+                            <select id="itemProjectType">
+                                <option value="Sesión Fotográfica">Sesión Fotográfica</option>
+                                <option value="Producción Audiovisual">Producción Audiovisual</option>
+                                <option value="Reel / Contenido Redes">Reel / Contenido Redes</option>
+                                <option value="Videoclip Musical">Videoclip Musical</option>
+                                <option value="Cobertura de Evento">Cobertura de Evento</option>
+                                <option value="Proyecto de Marca">Proyecto de Marca</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label>Cliente / Marca (opcional)</label>
+                            <input type="text" id="itemClient" placeholder="Ej: Café Cajamarca / Artista">
+                        </div>
+                        <div class="form-group">
+                            <label>Año / Fecha</label>
+                            <input type="text" id="itemYear" value="2026" placeholder="2026">
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Categoría *</label>
-                        <select id="itemCategory" required>
-                            <option value="retratos">Retratos</option>
-                            <option value="artistico">Artístico</option>
-                            <option value="15-anos">15 Años</option>
-                            <option value="audiovisual">Audiovisual</option>
-                        </select>
+                        <label>Descripción / Locación / Concepto</label>
+                        <textarea id="itemDescription" rows="2" placeholder="Ej: Locación exterior, dirección de luz y color grading cinematográfico"></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label>Descripción / Locación</label>
-                        <input type="text" id="itemDescription" placeholder="Ej: Plaza de Armas, Cajamarca">
+                        <label>Fotos o Video Principal (puedes seleccionar varias fotos)</label>
+                        <input type="file" id="itemFile" accept="image/*,video/mp4,video/webm" multiple>
+                        <div class="preview-box" id="filePreviewBox"></div>
                     </div>
 
                     <div class="form-group">
-                        <label>Archivo de Foto o Video (JPG, PNG, WEBP, MP4)</label>
-                        <input type="file" id="itemFile" accept="image/*,video/mp4,video/webm">
-                    </div>
-
-                    <div class="form-group">
-                        <label>O pega una URL externa (opcional si no subes archivo)</label>
+                        <label>O URL externa de Foto / Video (opcional si subes archivo)</label>
                         <input type="url" id="itemUrl" placeholder="https://...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Etiquetas / Tags (separadas por coma)</label>
+                        <input type="text" id="itemTags" placeholder="Ej: 4k, editorial, retrato, color pro">
                     </div>
 
                     <label class="checkbox-row">
                         <input type="checkbox" id="itemFeatured" checked>
-                        <span>Mostrar también en "Trabajos Destacados" del Inicio (index.html)</span>
+                        <span>Mostrar en "Trabajos Destacados" del Inicio (index.html)</span>
+                    </label>
+
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="itemHeroImage">
+                        <span>Usar esta imagen como foto principal de portada del Inicio (index.html)</span>
+                    </label>
+
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="itemAboutImage">
+                        <span>Usar esta imagen en la sección "Sobre Mí" (sobre-mi.html)</span>
                     </label>
 
                     <label class="checkbox-row">
@@ -314,19 +483,39 @@
                         <span>Usar este video como fondo principal del Inicio (solo MP4)</span>
                     </label>
 
-                    <button type="submit" id="publishBtn" class="btn btn-primary" style="width: 100%;">
-                        <i class="fas fa-rocket"></i> Publicar en GitHub
-                    </button>
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="itemHeroShowreel">
+                        <span>Mostrar este video en la tarjeta Filmmaker del Inicio (MP4/WEBM)</span>
+                    </label>
+
+                    <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.75rem;">
+                        <button type="submit" id="publishBtn" class="btn btn-primary" style="flex:1;">
+                            <i class="fas fa-rocket"></i> Publicar Proyecto
+                        </button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-outline" style="display:none;">
+                            Cancelar Edición
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
 
-        <!-- COLUMNA DERECHA: LISTADO Y ELIMINACIÓN -->
+        <!-- COLUMNA DERECHA: LISTADO, FILTROS Y GESTIÓN -->
         <div class="panel-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h2 style="margin: 0;"><i class="fas fa-layer-group"></i> Trabajos Publicados (<span id="itemsCount">0</span>)</h2>
-                <button type="button" id="reloadItemsBtn" class="btn btn-outline btn-sm"><i class="fas fa-sync"></i> Actualizar</button>
+            <div class="list-toolbar">
+                <h2 style="margin: 0;"><i class="fas fa-layer-group"></i> Proyectos Publicados (<span id="itemsCount">0</span>)</h2>
+                <button type="button" id="reloadItemsBtn" class="btn btn-outline btn-sm" style="flex:0 0 auto;">
+                    <i class="fas fa-sync"></i> Actualizar
+                </button>
             </div>
+
+            <div class="filter-mini-row">
+                <input type="text" id="adminSearchInput" placeholder="Buscar por título, cliente o tag..." style="flex:1; min-width:180px;">
+                <select id="adminFilterCategory">
+                    <option value="all">Todas las categorías</option>
+                </select>
+            </div>
+
             <div class="items-list" id="adminItemsList">
                 <p style="color: var(--secondary);">Conecta tu repositorio o recarga para ver tus publicaciones.</p>
             </div>
