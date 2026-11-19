@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - Fredy Culqui</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .page-hero {
+            padding: 145px 0 70px;
+            background: radial-gradient(circle at top center, #1f070c 0%, #050505 80%);
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .page-hero .badge {
+            display: inline-block;
+            padding: 0.35rem 1rem;
+            border-radius: 50px;
+            background: var(--accent-soft);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 1rem;
+        }
+        .page-hero h1 { font-size: 3.1rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.75rem; }
+        .page-hero p { color: var(--secondary); max-width: 620px; margin: 0 auto; font-size: 1.05rem; }
+        .page-section { padding: 75px 0; }
+        .card-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 2.25rem;
+            transition: all var(--transition-base);
+        }
+        .card-box:hover { border-color: rgba(225, 29, 72, 0.5); }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-size: 0.9rem; font-weight: 500; margin-bottom: 0.45rem; color: var(--primary); }
+        .form-control {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            background: #080808;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+        .form-control:focus { outline: none; border-color: var(--accent); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .contact-grid { display: grid; grid-template-columns: 1fr 1.35fr; gap: 2.5rem; }
+        .info-card { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; }
+        .info-icon {
+            width: 46px; height: 46px; border-radius: 10px;
+            background: var(--accent-soft); border: 1px solid var(--accent); color: var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.15rem; flex-shrink: 0;
+        }
+        .info-card h4 { font-size: 1rem; margin-bottom: 0.2rem; }
+        .info-card p, .info-card a { color: var(--secondary); text-decoration: none; font-size: 0.95rem; }
+        .info-card a:hover { color: var(--accent); }
+        .alert-msg {
+            display: none;
+            margin-top: 1rem;
+            padding: 0.95rem 1.2rem;
+            border-radius: 8px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid #10b981;
+            color: #a7f3d0;
+            font-size: 0.92rem;
+        }
+        @media (max-width: 900px) { .contact-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } .page-hero h1 { font-size: 2.2rem; } }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo"><a href="index.html" style="color: inherit; text-decoration: none;">Fredy <span>Culqui</span></a></div>
+        <i class="fas fa-bars menu-toggle"></i>
+        <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="sobre-mi.html">Sobre Mí</a></li>
+            <li><a href="portafolio.html">Portafolio</a></li>
+            <li><a href="paquetes.html">Paquetes</a></li>
+            <li><a href="agendar.html">Agendar</a></li>
+            <li><a href="contacto.html" class="active">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <section class="page-hero">
+        <div class="container">
+            <span class="badge">Hablemos</span>
+            <h1>Contacto</h1>
+            <p>¿Tienes una consulta, propuesta comercial o idea creativa? Escríbeme y te responderé a la brevedad.</p>
+        </div>
+    </section>
+
+    <section class="page-section">
+        <div class="container">
+            <div class="contact-grid">
+                <div class="card-box">
+                    <h2 style="font-size:1.5rem; margin-bottom:0.6rem;">Información Directa</h2>
+                    <p style="color:var(--secondary); margin-bottom:2rem; font-size:0.95rem;">Disponible para sesiones individuales, eventos y colaboraciones en Cajamarca y todo el Perú.</p>
+
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fab fa-whatsapp"></i></div>
+                        <div><h4>WhatsApp Directo</h4><a href="https://wa.me/51967620685" target="_blank">+51 967 620 685</a></div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-envelope"></i></div>
+                        <div><h4>Correo Electrónico</h4><a href="mailto:fredyculqui@gmail.com">fredyculqui@gmail.com</a></div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div><h4>Ubicación</h4><p>Cajamarca, Perú</p></div>
+                    </div>
+                    <div class="info-card" style="margin-bottom:0;">
+                        <div class="info-icon"><i class="fas fa-clock"></i></div>
+                        <div><h4>Horario de Atención</h4><p>Lunes a Sábado: 9:00 AM – 7:00 PM</p></div>
+                    </div>
+                </div>
+
+                <div class="card-box">
+                    <h2 style="font-size:1.5rem; margin-bottom:1.5rem;">Envíame un Mensaje</h2>
+                    <form id="contactForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="contactName">Nombre *</label>
+                                <input type="text" id="contactName" class="form-control" placeholder="Tu nombre" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactEmail">Correo Electrónico *</label>
+                                <input type="email" id="contactEmail" class="form-control" placeholder="tu@correo.com" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactSubject">Asunto *</label>
+                            <input type="text" id="contactSubject" class="form-control" placeholder="Ej. Cotización para sesión / evento" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactMessage">Mensaje *</label>
+                            <textarea id="contactMessage" rows="5" class="form-control" placeholder="Cuéntame los detalles de lo que necesitas..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-large" style="width:100%;">
+                            <i class="fas fa-paper-plane"></i> Enviar Mensaje
+                        </button>
+                        <div id="contactFeedback" class="alert-msg">
+                            <i class="fas fa-check-circle"></i> ¡Mensaje listo! Se abrió tu cliente de correo para enviarlo.
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Fredy Culqui</h3>
+                <p>Fotógrafo & Filmmaker profesional especializado en contar historias a través de la imagen.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/fredy_culqui" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.tiktok.com/@fredy_culqui" target="_blank"><i class="fab fa-tiktok"></i></a>
+                    <a href="mailto:fredyculqui@gmail.com"><i class="fas fa-envelope"></i></a>
+                    <a href="https://wa.me/51967620685" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Enlaces Rápidos</h4>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="sobre-mi.html">Sobre Mí</a></li>
+                    <li><a href="portafolio.html">Portafolio</a></li>
+                    <li><a href="paquetes.html">Paquetes</a></li>
+                    <li><a href="agendar.html">Agendar Sesión</a></li>
+                    <li><a href="contacto.html">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="privacy.html">Política de Privacidad</a></li>
+                    <li><a href="terms.html">Términos y Condiciones</a></li>
+                    <li><a href="cookies.html">Política de Cookies</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contacto</h4>
+                <div class="contact-info">
+                    <p><i class="fas fa-envelope"></i> fredyculqui@gmail.com</p>
+                    <p><i class="fas fa-phone"></i> +51 967 620 685</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Cajamarca, Perú</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom"><p>&copy; 2026 Fredy Culqui. Todos los derechos reservados.</p></div>
+    </footer>
+    <script src="js/main.js"></script>
+    <script src="js/contact.js"></script>
+</body>
+</html>
