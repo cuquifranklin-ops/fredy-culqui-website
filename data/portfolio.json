@@ -1,15 +1,41 @@
 {
   "heroImage": "",
   "aboutImage": "",
-  "heroVideo": "",
-  "showreelVideo": "",
+  "heroVideo": "assets/uploads/1795070660620_khaos2_iavpvUPJ.mp4",
+  "showreelVideo": "assets/uploads/1795070660620_khaos2_iavpvUPJ.mp4",
   "categories": [
-    { "slug": "retratos", "name": "Retratos" },
-    { "slug": "artistico", "name": "Artístico" },
-    { "slug": "15-anos", "name": "15 Años" },
-    { "slug": "audiovisual", "name": "Audiovisual" }
+    {
+      "slug": "retratos",
+      "name": "Retratos"
+    },
+    {
+      "slug": "artistico",
+      "name": "Artístico"
+    },
+    {
+      "slug": "15-anos",
+      "name": "15 Años"
+    },
+    {
+      "slug": "audiovisual",
+      "name": "Audiovisual"
+    }
   ],
   "items": [
+    {
+      "id": "1795070668599",
+      "title": "ClubNocturno",
+      "category": "audiovisual",
+      "projectType": "Reel / Contenido Redes",
+      "client": "Khaos Club",
+      "year": "2026",
+      "description": "",
+      "type": "video",
+      "src": "assets/uploads/1795070660620_khaos2_iavpvUPJ.mp4",
+      "gallery": [],
+      "tags": [],
+      "featured": true
+    },
     {
       "id": "1795058957103",
       "title": "Trabajo 3",
