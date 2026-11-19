@@ -19,6 +19,10 @@
     {
       "slug": "audiovisual",
       "name": "Audiovisual"
+    },
+    {
+      "slug": "fotos",
+      "name": "Cinematic"
     }
   ],
   "items": [
