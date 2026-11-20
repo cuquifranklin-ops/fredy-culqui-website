@@ -27,10 +27,12 @@
   ],
   "bookings": [
     {
-      "id": "1795147743439",
+      "id": "1795147977758",
       "name": "Carla Guerrero Suárez",
-      "dni": "000000",
+      "dni": "74220359",
       "phone": "951222543",
+      "price": 70,
+      "transport": 15,
       "date": "2026-11-27",
       "type": "Sesión Fotográfica",
       "notes": "Hotel la ensenada",
