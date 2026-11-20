@@ -1,4 +1,4 @@
-// ===== PANEL ADMINISTRADOR PRO (PROYECTOS, FOTOS MÚLTIPLES, VIDEOS, CATEGORÍAS Y SESIONES) =====
+// ===== PANEL ADMINISTRADOR PRO (PROYECTOS, FOTOS MÚLTIPLES, VIDEOS Y CATEGORÍAS) =====
 if (sessionStorage.getItem('fc_admin_auth') !== 'true') {
     window.location.href = 'login.html';
 }
@@ -16,7 +16,6 @@ let portfolioState = {
     heroVideo: '',
     showreelVideo: '',
     categories: [...DEFAULT_CATEGORIES],
-    bookings: [],
     items: []
 };
 let portfolioJsonSha = null;
@@ -62,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('ghToken').value = cfg.token;
 
     renderCategoryUI();
-    renderBookingsList();
 
     if (cfg.owner && cfg.repo && cfg.token) {
         loadPortfolioFromGithub();
@@ -72,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('saveGithubConfig').addEventListener('click', saveGithubConfig);
     document.getElementById('addCategoryBtn').addEventListener('click', handleAddCategory);
-    document.getElementById('bookingForm').addEventListener('submit', handleAddBooking);
     document.getElementById('reloadItemsBtn').addEventListener('click', loadPortfolioFromGithub);
     document.getElementById('uploadForm').addEventListener('submit', handlePublishOrUpdate);
     document.getElementById('cancelEditBtn').addEventListener('click', resetFormMode);
@@ -118,7 +115,6 @@ async function loadLocalPortfolioFallback() {
         // ignore
     }
     renderCategoryUI();
-    renderBookingsList();
     renderAdminItems();
 }
 
@@ -132,115 +128,8 @@ function normalizePortfolioData(raw) {
         heroVideo: raw?.heroVideo || '',
         showreelVideo: raw?.showreelVideo || '',
         categories: cats,
-        bookings: Array.isArray(raw?.bookings) ? raw.bookings : [],
         items: Array.isArray(raw?.items) ? raw.items : []
     };
-}
-
-async function handleAddBooking(e) {
-    e.preventDefault();
-
-    const name = document.getElementById('bookingName').value.trim();
-    const dni = document.getElementById('bookingDni').value.trim();
-    const phone = document.getElementById('bookingPhone').value.trim();
-    const date = document.getElementById('bookingDate').value;
-    const type = document.getElementById('bookingType').value;
-    const notes = document.getElementById('bookingNotes').value.trim();
-
-    if (!name || !dni || !phone) {
-        showStatus('error', 'Completa Nombre, DNI y Número de teléfono para agendar la sesión.');
-        return;
-    }
-
-    const booking = {
-        id: String(Date.now()),
-        name,
-        dni,
-        phone,
-        date,
-        type,
-        notes,
-        status: 'Agendada'
-    };
-
-    portfolioState.bookings.unshift(booking);
-    document.getElementById('bookingForm').reset();
-    renderBookingsList();
-
-    const cfg = getConfig();
-    if (cfg.owner && cfg.repo && cfg.token) {
-        try {
-            showStatus('info', `Guardando sesión de ${name}...`);
-            await savePortfolioJson(portfolioState, `Agendar sesión: ${name}`);
-            showStatus('success', `Sesión agendada para ${name} (DNI: ${dni}).`);
-        } catch (err) {
-            showStatus('error', 'Sesión agregada localmente, pero falló al guardar en GitHub: ' + err.message);
-        }
-    } else {
-        showStatus('info', `Sesión agendada para ${name}. Conecta GitHub para respaldarla en el repo.`);
-    }
-}
-
-window.deleteBooking = async function(id) {
-    if (!confirm('¿Eliminar esta sesión agendada?')) return;
-    portfolioState.bookings = portfolioState.bookings.filter(b => String(b.id) !== String(id));
-    renderBookingsList();
-
-    const cfg = getConfig();
-    if (cfg.owner && cfg.repo && cfg.token) {
-        try {
-            showStatus('info', 'Actualizando sesiones agendadas...');
-            await savePortfolioJson(portfolioState, 'Eliminar sesión agendada');
-            showStatus('success', 'Sesión eliminada.');
-        } catch (err) {
-            showStatus('error', 'Error al guardar en GitHub: ' + err.message);
-        }
-    }
-};
-
-function renderBookingsList() {
-    const container = document.getElementById('adminBookingsList');
-    const countEl = document.getElementById('bookingsCount');
-    if (!container) return;
-
-    const list = Array.isArray(portfolioState.bookings) ? portfolioState.bookings : [];
-    if (countEl) countEl.textContent = list.length;
-
-    if (list.length === 0) {
-        container.innerHTML = '<p style="color: var(--secondary);">Aún no hay sesiones agendadas.</p>';
-        return;
-    }
-
-    container.innerHTML = list.map(b => {
-        const cleanPhone = String(b.phone || '').replace(/\D/g, '');
-        const waLink = cleanPhone
-            ? `<a href="https://wa.me/${cleanPhone.startsWith('51') ? cleanPhone : '51' + cleanPhone}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm"><i class="fab fa-whatsapp"></i> WhatsApp</a>`
-            : '';
-
-        return `
-            <div class="booking-card">
-                <div>
-                    <div class="booking-top">
-                        <h4>${escapeHtml(b.name)}</h4>
-                        <span class="booking-status">${escapeHtml(b.status || 'Agendada')}</span>
-                    </div>
-                    <div class="booking-meta">
-                        <div><i class="fas fa-id-card"></i><strong>DNI:</strong> ${escapeHtml(b.dni)}</div>
-                        <div><i class="fas fa-phone"></i><strong>Número:</strong> ${escapeHtml(b.phone)}</div>
-                        <div><i class="fas fa-camera"></i>${escapeHtml(b.type || 'Sesión Fotográfica')}</div>
-                        ${b.date ? `<div><i class="fas fa-calendar"></i>${escapeHtml(b.date)}</div>` : ''}
-                        ${b.notes ? `<div><i class="fas fa-sticky-note"></i>${escapeHtml(b.notes)}</div>` : ''}
-                    </div>
-                </div>
-                <div class="admin-item-actions">
-                    ${waLink}
-                    <button type="button" class="btn btn-danger btn-sm" onclick="deleteBooking('${escapeAttr(b.id)}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-    }).join('');
 }
 
 function renderCategoryUI() {
@@ -372,12 +261,10 @@ async function loadPortfolioFromGithub() {
                 heroVideo: '',
                 showreelVideo: '',
                 categories: [...DEFAULT_CATEGORIES],
-                bookings: [],
                 items: []
             };
             portfolioJsonSha = null;
             renderCategoryUI();
-            renderBookingsList();
             renderAdminItems();
             showStatus('info', 'data/portfolio.json no existe aún; se creará al publicar tu primer proyecto.');
             return;
@@ -390,7 +277,6 @@ async function loadPortfolioFromGithub() {
         const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
         portfolioState = normalizePortfolioData(JSON.parse(decoded));
         renderCategoryUI();
-        renderBookingsList();
         renderAdminItems();
         showStatus('success', `Conectado a ${owner}/${repo} (${portfolioState.items.length} proyectos).`);
     } catch (err) {
