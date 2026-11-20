@@ -27,6 +27,18 @@
   ],
   "bookings": [
     {
+      "id": "1795148041592",
+      "name": "Valeria",
+      "dni": "61979192",
+      "phone": "932400803",
+      "price": 30,
+      "transport": 0,
+      "date": "2026-11-21",
+      "type": "Sesión Fotográfica",
+      "notes": "Iglesia Bélen",
+      "status": "Agendada"
+    },
+    {
       "id": "1795147977758",
       "name": "Carla Guerrero Suárez",
       "dni": "74220359",
