@@ -25,7 +25,18 @@
       "name": "Cinematic"
     }
   ],
-  "bookings": [],
+  "bookings": [
+    {
+      "id": "1795147652044",
+      "name": "Carla Guerrero Suárez",
+      "dni": "000000",
+      "phone": "951222543",
+      "date": "2026-11-27",
+      "type": "Sesión Fotográfica",
+      "notes": "Hotel la ensenada",
+      "status": "Agendada"
+    }
+  ],
   "items": [
     {
       "id": "1795106856133",
