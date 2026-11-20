@@ -27,18 +27,6 @@
   ],
   "bookings": [
     {
-      "id": "1795147928293",
-      "name": "qwer",
-      "dni": "000000",
-      "phone": "r32",
-      "price": 232,
-      "transport": 3,
-      "date": "2026-12-03",
-      "type": "Sesión Fotográfica",
-      "notes": "qwer",
-      "status": "Agendada"
-    },
-    {
       "id": "1795147809041",
       "name": "Valeria",
       "dni": "61979192",
