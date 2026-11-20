@@ -1,663 +1,647 @@
-// ===== PANEL ADMINISTRADOR PRO (PROYECTOS, FOTOS MÚLTIPLES, VIDEOS Y CATEGORÍAS) =====
-if (sessionStorage.getItem('fc_admin_auth') !== 'true') {
-    window.location.href = 'login.html';
-}
-
-const DEFAULT_CATEGORIES = [
-    { slug: 'retratos', name: 'Retratos' },
-    { slug: 'artistico', name: 'Artístico' },
-    { slug: '15-anos', name: '15 Años' },
-    { slug: 'audiovisual', name: 'Audiovisual' }
-];
-
-let portfolioState = {
-    heroImage: '',
-    aboutImage: '',
-    heroVideo: '',
-    showreelVideo: '',
-    categories: [...DEFAULT_CATEGORIES],
-    items: []
-};
-let portfolioJsonSha = null;
-
-function getConfig() {
-    return {
-        owner: (localStorage.getItem('fc_gh_owner') || '').trim(),
-        repo: (localStorage.getItem('fc_gh_repo') || '').trim(),
-        branch: (localStorage.getItem('fc_gh_branch') || 'main').trim() || 'main',
-        basePath: (localStorage.getItem('fc_gh_base_path') || '').trim().replace(/^\/+|\/+$/g, ''),
-        token: (localStorage.getItem('fc_gh_token') || '').trim()
-    };
-}
-
-function repoPath(relativePath) {
-    const { basePath } = getConfig();
-    const cleanRel = String(relativePath || '').replace(/^\/+/, '');
-    return basePath ? `${basePath}/${cleanRel}` : cleanRel;
-}
-
-function showStatus(type, msg) {
-    const box = document.getElementById('statusBox');
-    if (!box) return;
-    box.className = `status-box ${type}`;
-    box.innerHTML = msg;
-}
-
-function slugifyCategory(text) {
-    return String(text || '')
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const cfg = getConfig();
-    document.getElementById('ghOwner').value = cfg.owner;
-    document.getElementById('ghRepo').value = cfg.repo;
-    document.getElementById('ghBranch').value = cfg.branch;
-    document.getElementById('ghBasePath').value = cfg.basePath;
-    document.getElementById('ghToken').value = cfg.token;
-
-    renderCategoryUI();
-
-    if (cfg.owner && cfg.repo && cfg.token) {
-        loadPortfolioFromGithub();
-    } else {
-        loadLocalPortfolioFallback();
-    }
-
-    document.getElementById('saveGithubConfig').addEventListener('click', saveGithubConfig);
-    document.getElementById('addCategoryBtn').addEventListener('click', handleAddCategory);
-    document.getElementById('reloadItemsBtn').addEventListener('click', loadPortfolioFromGithub);
-    document.getElementById('uploadForm').addEventListener('submit', handlePublishOrUpdate);
-    document.getElementById('cancelEditBtn').addEventListener('click', resetFormMode);
-    document.getElementById('itemFile').addEventListener('change', handleFilePreview);
-    document.getElementById('adminSearchInput').addEventListener('input', renderAdminItems);
-    document.getElementById('adminFilterCategory').addEventListener('change', renderAdminItems);
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-        sessionStorage.removeItem('fc_admin_auth');
-        window.location.href = 'login.html';
-    });
-});
-
-function saveGithubConfig() {
-    const owner = document.getElementById('ghOwner').value.trim();
-    const repo = document.getElementById('ghRepo').value.trim();
-    const branch = document.getElementById('ghBranch').value.trim() || 'main';
-    const basePath = document.getElementById('ghBasePath').value.trim().replace(/^\/+|\/+$/g, '');
-    const token = document.getElementById('ghToken').value.trim();
-
-    if (!owner || !repo || !token) {
-        showStatus('error', 'Completa Usuario, Repositorio y Token de GitHub.');
-        return;
-    }
-
-    localStorage.setItem('fc_gh_owner', owner);
-    localStorage.setItem('fc_gh_repo', repo);
-    localStorage.setItem('fc_gh_branch', branch);
-    localStorage.setItem('fc_gh_base_path', basePath);
-    localStorage.setItem('fc_gh_token', token);
-
-    showStatus('success', 'Configuración guardada. Cargando datos del repositorio...');
-    loadPortfolioFromGithub();
-}
-
-async function loadLocalPortfolioFallback() {
-    try {
-        const res = await fetch('data/portfolio.json?v=' + Date.now());
-        if (res.ok) {
-            const json = await res.json();
-            portfolioState = normalizePortfolioData(json);
-        }
-    } catch (e) {
-        // ignore
-    }
-    renderCategoryUI();
-    renderAdminItems();
-}
-
-function normalizePortfolioData(raw) {
-    const cats = Array.isArray(raw?.categories) && raw.categories.length > 0
-        ? raw.categories
-        : [...DEFAULT_CATEGORIES];
-    return {
-        heroImage: raw?.heroImage || '',
-        aboutImage: raw?.aboutImage || '',
-        heroVideo: raw?.heroVideo || '',
-        showreelVideo: raw?.showreelVideo || '',
-        categories: cats,
-        items: Array.isArray(raw?.items) ? raw.items : []
-    };
-}
-
-function renderCategoryUI() {
-    const selectCat = document.getElementById('itemCategory');
-    const filterCat = document.getElementById('adminFilterCategory');
-    const chipsBox = document.getElementById('categoryChipsList');
-
-    const prevSelected = selectCat.value;
-    selectCat.innerHTML = portfolioState.categories.map(c =>
-        `<option value="${escapeAttr(c.slug)}">${escapeHtml(c.name)}</option>`
-    ).join('');
-    if (prevSelected && portfolioState.categories.some(c => c.slug === prevSelected)) {
-        selectCat.value = prevSelected;
-    }
-
-    const prevFilter = filterCat.value;
-    filterCat.innerHTML = `<option value="all">Todas las categorías</option>` +
-        portfolioState.categories.map(c =>
-            `<option value="${escapeAttr(c.slug)}">${escapeHtml(c.name)}</option>`
-        ).join('');
-    if (prevFilter) filterCat.value = prevFilter;
-
-    chipsBox.innerHTML = portfolioState.categories.map(c => `
-        <span class="cat-chip">
-            ${escapeHtml(c.name)} <span style="color:var(--secondary);">(${escapeHtml(c.slug)})</span>
-            <button type="button" title="Eliminar categoría" onclick="removeCategory('${escapeAttr(c.slug)}')">&times;</button>
-        </span>
-    `).join('');
-}
-
-async function handleAddCategory() {
-    const nameInput = document.getElementById('newCategoryName');
-    const slugInput = document.getElementById('newCategorySlug');
-    const name = nameInput.value.trim();
-    const slug = slugifyCategory(slugInput.value.trim() || name);
-
-    if (!name || !slug) {
-        showStatus('error', 'Escribe un nombre válido para la categoría.');
-        return;
-    }
-
-    if (portfolioState.categories.some(c => c.slug === slug)) {
-        showStatus('error', `Ya existe una categoría con el identificador "${slug}".`);
-        return;
-    }
-
-    portfolioState.categories.push({ slug, name });
-    nameInput.value = '';
-    slugInput.value = '';
-    renderCategoryUI();
-    document.getElementById('itemCategory').value = slug;
-
-    const cfg = getConfig();
-    if (cfg.owner && cfg.repo && cfg.token) {
-        try {
-            showStatus('info', `Guardando categoría "${name}" en GitHub...`);
-            await savePortfolioJson(portfolioState, `Agregar categoría: ${name}`);
-            showStatus('success', `Categoría "${name}" agregada y publicada.`);
-        } catch (err) {
-            showStatus('error', 'Categoría agregada localmente, pero falló al guardar en GitHub: ' + err.message);
-        }
-    } else {
-        showStatus('info', `Categoría "${name}" agregada en el panel. Conecta GitHub para publicarla en la web.`);
-    }
-}
-
-window.removeCategory = async function(slug) {
-    if (portfolioState.categories.length <= 1) {
-        showStatus('error', 'Debe existir al menos una categoría.');
-        return;
-    }
-    if (!confirm(`¿Eliminar la categoría "${slug}"?`)) return;
-
-    portfolioState.categories = portfolioState.categories.filter(c => c.slug !== slug);
-    renderCategoryUI();
-
-    const cfg = getConfig();
-    if (cfg.owner && cfg.repo && cfg.token) {
-        try {
-            showStatus('info', 'Actualizando categorías en GitHub...');
-            await savePortfolioJson(portfolioState, `Eliminar categoría: ${slug}`);
-            showStatus('success', 'Categoría eliminada.');
-        } catch (err) {
-            showStatus('error', 'Error al guardar en GitHub: ' + err.message);
-        }
-    }
-};
-
-function handleFilePreview() {
-    const files = Array.from(document.getElementById('itemFile').files || []);
-    const box = document.getElementById('filePreviewBox');
-    box.innerHTML = '';
-
-    files.slice(0, 6).forEach(file => {
-        const url = URL.createObjectURL(file);
-        if (file.type.startsWith('video/')) {
-            const vid = document.createElement('video');
-            vid.src = url;
-            vid.muted = true;
-            box.appendChild(vid);
-        } else {
-            const img = document.createElement('img');
-            img.src = url;
-            box.appendChild(img);
-        }
-    });
-}
-
-async function loadPortfolioFromGithub() {
-    const { owner, repo, branch, token } = getConfig();
-    if (!owner || !repo || !token) {
-        showStatus('error', 'Configura primero los datos de GitHub.');
-        return;
-    }
-
-    showStatus('info', 'Cargando proyectos desde GitHub...');
-    const targetPath = repoPath('data/portfolio.json');
-    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${targetPath}?ref=${branch}&t=${Date.now()}`;
-
-    try {
-        const res = await fetch(url, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-
-        if (res.status === 404) {
-            portfolioState = {
-                heroImage: '',
-                aboutImage: '',
-                heroVideo: '',
-                showreelVideo: '',
-                categories: [...DEFAULT_CATEGORIES],
-                items: []
-            };
-            portfolioJsonSha = null;
-            renderCategoryUI();
-            renderAdminItems();
-            showStatus('info', 'data/portfolio.json no existe aún; se creará al publicar tu primer proyecto.');
-            return;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrador Pro - Fredy Culqui</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .admin-topbar {
+            background: #050505;
+            border-bottom: 1px solid var(--accent);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
         }
 
-        if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
-        const data = await res.json();
-        portfolioJsonSha = data.sha;
-
-        const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
-        portfolioState = normalizePortfolioData(JSON.parse(decoded));
-        renderCategoryUI();
-        renderAdminItems();
-        showStatus('success', `Conectado a ${owner}/${repo} (${portfolioState.items.length} proyectos).`);
-    } catch (err) {
-        showStatus('error', `No se pudo cargar desde GitHub: ${err.message}`);
-    }
-}
-
-function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            const base64 = reader.result.split(',')[1];
-            resolve(base64);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-}
-
-async function uploadFileToGithub(file) {
-    const { owner, repo, branch, token } = getConfig();
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const filePath = repoPath(`assets/uploads/${Date.now()}_${safeName}`);
-    const contentBase64 = await fileToBase64(file);
-
-    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
-    const res = await fetch(url, {
-        method: 'PUT',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            message: `Subir archivo: ${safeName}`,
-            content: contentBase64,
-            branch
-        })
-    });
-
-    if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || `Error subiendo ${file.name}`);
-    }
-
-    return `assets/uploads/${filePath.split('/').pop()}`;
-}
-
-async function savePortfolioJson(newData, commitMsg) {
-    const { owner, repo, branch, token } = getConfig();
-    const targetPath = repoPath('data/portfolio.json');
-    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${targetPath}`;
-
-    if (!portfolioJsonSha) {
-        const checkRes = await fetch(`${url}?ref=${branch}&t=${Date.now()}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        if (checkRes.ok) {
-            const checkData = await checkRes.json();
-            portfolioJsonSha = checkData.sha;
+        .admin-topbar h1 {
+            font-size: 1.35rem;
         }
-    }
 
-    const jsonString = JSON.stringify(newData, null, 2);
-    const base64Content = btoa(unescape(encodeURIComponent(jsonString)));
+        .admin-topbar h1 span {
+            color: var(--accent);
+        }
 
-    const body = {
-        message: commitMsg || 'Actualizar portfolio.json desde Panel Admin',
-        content: base64Content,
-        branch
-    };
-    if (portfolioJsonSha) body.sha = portfolioJsonSha;
+        .topbar-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
 
-    const res = await fetch(url, {
-        method: 'PUT',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-    });
+        .admin-main {
+            max-width: 1320px;
+            margin: 2rem auto;
+            padding: 0 1.5rem 4rem;
+            display: grid;
+            grid-template-columns: 1.05fr 1.45fr;
+            gap: 2rem;
+            align-items: start;
+        }
 
-    if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || `Error guardando portfolio.json (${res.status})`);
-    }
+        .panel-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
 
-    const result = await res.json();
-    portfolioJsonSha = result.content.sha;
-}
+        .panel-card h2 {
+            font-size: 1.18rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
 
-async function handlePublishOrUpdate(e) {
-    e.preventDefault();
-    const { owner, repo, token } = getConfig();
-    if (!owner || !repo || !token) {
-        showStatus('error', 'Primero configura y guarda tu conexión de GitHub.');
-        return;
-    }
+        .panel-card h2 i {
+            color: var(--accent);
+        }
 
-    const editingId = document.getElementById('editingItemId').value.trim();
-    const existingItem = editingId ? portfolioState.items.find(i => String(i.id) === editingId) : null;
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.85rem;
+        }
 
-    const title = document.getElementById('itemTitle').value.trim();
-    const category = document.getElementById('itemCategory').value;
-    const projectType = document.getElementById('itemProjectType').value;
-    const client = document.getElementById('itemClient').value.trim();
-    const year = document.getElementById('itemYear').value.trim() || '2026';
-    const description = document.getElementById('itemDescription').value.trim();
-    const files = Array.from(document.getElementById('itemFile').files || []);
-    const externalUrl = document.getElementById('itemUrl').value.trim();
-    const tags = document.getElementById('itemTags').value
-        .split(',')
-        .map(t => t.trim())
-        .filter(Boolean);
-    const featured = document.getElementById('itemFeatured').checked;
-    const setHeroImage = document.getElementById('itemHeroImage').checked;
-    const setAboutImage = document.getElementById('itemAboutImage').checked;
-    const setHeroVideo = document.getElementById('itemHeroVideo').checked;
-    const setHeroShowreel = document.getElementById('itemHeroShowreel').checked;
+        .form-group {
+            margin-bottom: 1rem;
+        }
 
-    if (!title) {
-        showStatus('error', 'El título del proyecto es obligatorio.');
-        return;
-    }
-    if (files.length === 0 && !externalUrl && !existingItem?.src) {
-        showStatus('error', 'Selecciona al menos una foto/video o ingresa una URL externa.');
-        return;
-    }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.86rem;
+            color: var(--secondary);
+        }
 
-    const publishBtn = document.getElementById('publishBtn');
-    publishBtn.disabled = true;
-    publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            background: #0a0a0a;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 0.93rem;
+            font-family: inherit;
+        }
 
-    try {
-        const uploadedUrls = [];
-        let detectedType = existingItem?.type || 'image';
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
 
-        for (let i = 0; i < files.length; i++) {
-            const f = files[i];
-            showStatus('info', `Subiendo archivo ${i + 1} de ${files.length}: ${f.name}...`);
-            const uploadedSrc = await uploadFileToGithub(f);
-            uploadedUrls.push(uploadedSrc);
-            if (i === 0) {
-                detectedType = f.type.startsWith('video/') ? 'video' : 'image';
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin: 0.65rem 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #e5e5e5;
+        }
+
+        .checkbox-row input {
+            width: auto;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .status-box {
+            padding: 0.85rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .status-box.success {
+            display: block;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid #10b981;
+            color: #6ee7b7;
+        }
+
+        .status-box.error {
+            display: block;
+            background: var(--accent-soft);
+            border: 1px solid var(--accent);
+            color: #fda4af;
+        }
+
+        .status-box.info {
+            display: block;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+        }
+
+        .category-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.9rem;
+        }
+
+        .cat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            background: #0a0a0a;
+            border: 1px solid var(--border-color);
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            color: #e5e5e5;
+        }
+
+        .cat-chip button {
+            background: none;
+            border: none;
+            color: #fda4af;
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 0;
+        }
+
+        .list-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.15rem;
+        }
+
+        .filter-mini-row {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.15rem;
+        }
+
+        .filter-mini-row input,
+        .filter-mini-row select {
+            padding: 0.55rem 0.8rem;
+            background: #0a0a0a;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.86rem;
+        }
+
+        .items-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
+            gap: 1rem;
+        }
+
+        .admin-item-card {
+            background: #0a0a0a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .admin-item-media {
+            aspect-ratio: 4/5;
+            background: #000;
+            position: relative;
+        }
+
+        .admin-item-media img,
+        .admin-item-media video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .badge-featured {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 3px 7px;
+            border-radius: 4px;
+        }
+
+        .badge-type {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 0.66rem;
+            padding: 3px 7px;
+            border-radius: 4px;
+        }
+
+        .admin-item-body {
+            padding: 0.85rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .admin-item-body small {
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 0.7rem;
+        }
+
+        .admin-item-body h4 {
+            font-size: 0.96rem;
+            margin: 0.25rem 0;
+        }
+
+        .admin-item-body p {
+            font-size: 0.8rem;
+            color: var(--secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .admin-item-actions {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 0.42rem 0.65rem;
+            font-size: 0.78rem;
+            flex: 1;
+        }
+
+        .btn-danger {
+            background: rgba(225, 29, 72, 0.15);
+            color: #fda4af;
+            border: 1px solid var(--accent);
+        }
+
+        .btn-danger:hover {
+            background: var(--accent);
+            color: #ffffff;
+        }
+
+        .preview-box {
+            margin-top: 0.6rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .preview-box img,
+        .preview-box video {
+            width: 68px;
+            height: 68px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* ===== AGENDAR SESIÓN EN ADMIN ===== */
+        .bookings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .booking-card {
+            background: #0a0a0a;
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--accent);
+            border-radius: 10px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .booking-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .booking-top h4 {
+            font-size: 1rem;
+            color: #ffffff;
+            margin-bottom: 0.2rem;
+        }
+
+        .booking-status {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 0.22rem 0.55rem;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: #ff6b8b;
+            border: 1px solid rgba(225, 29, 72, 0.45);
+            white-space: nowrap;
+        }
+
+        .booking-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.32rem;
+            font-size: 0.84rem;
+            color: #d4d4d4;
+        }
+
+        .booking-meta i {
+            color: var(--accent);
+            width: 16px;
+            text-align: center;
+            margin-right: 0.35rem;
+        }
+
+        @media (max-width: 980px) {
+            .admin-main {
+                grid-template-columns: 1fr;
+            }
+            .form-row-2 {
+                grid-template-columns: 1fr;
             }
         }
+    </style>
+</head>
+<body>
+    <header class="admin-topbar">
+        <h1>Fredy <span>Culqui</span> · Panel de Control Pro</h1>
+        <div class="topbar-actions">
+            <a href="index.html" target="_blank" class="btn btn-outline btn-sm"><i class="fas fa-home"></i> Ver Inicio</a>
+            <a href="sobre-mi.html" target="_blank" class="btn btn-outline btn-sm"><i class="fas fa-user"></i> Ver Sobre Mí</a>
+            <a href="portafolio.html" target="_blank" class="btn btn-outline btn-sm"><i class="fas fa-images"></i> Ver Portafolio</a>
+            <button type="button" id="logoutBtn" class="btn btn-primary btn-sm"><i class="fas fa-sign-out-alt"></i> Salir</button>
+        </div>
+    </header>
 
-        let primarySrc = existingItem?.src || '';
-        let extraGallery = Array.isArray(existingItem?.gallery) ? [...existingItem.gallery] : [];
-
-        if (uploadedUrls.length > 0) {
-            primarySrc = uploadedUrls[0];
-            if (uploadedUrls.length > 1) {
-                extraGallery = [...uploadedUrls.slice(1), ...extraGallery];
-            }
-        } else if (externalUrl) {
-            primarySrc = externalUrl;
-            detectedType = /\.(mp4|webm|mov)(\?|$)/i.test(externalUrl) ? 'video' : 'image';
-        }
-
-        if (setHeroImage && detectedType === 'image') {
-            portfolioState.heroImage = primarySrc;
-        }
-        if (setAboutImage && detectedType === 'image') {
-            portfolioState.aboutImage = primarySrc;
-        }
-        if (setHeroVideo && detectedType === 'video') {
-            portfolioState.heroVideo = primarySrc;
-        }
-        if (setHeroShowreel && detectedType === 'video') {
-            portfolioState.showreelVideo = primarySrc;
-        }
-
-        const itemPayload = {
-            id: existingItem ? existingItem.id : String(Date.now()),
-            title,
-            category,
-            projectType,
-            client,
-            year,
-            description,
-            type: detectedType,
-            src: primarySrc,
-            gallery: extraGallery,
-            tags,
-            featured
-        };
-
-        if (existingItem) {
-            portfolioState.items = portfolioState.items.map(i =>
-                String(i.id) === editingId ? itemPayload : i
-            );
-        } else {
-            portfolioState.items.unshift(itemPayload);
-        }
-
-        showStatus('info', 'Actualizando data/portfolio.json en GitHub...');
-        await savePortfolioJson(
-            portfolioState,
-            existingItem ? `Actualizar proyecto: ${title}` : `Publicar proyecto: ${title}`
-        );
-
-        renderAdminItems();
-        resetFormMode();
-        showStatus('success', existingItem
-            ? `¡Proyecto "${title}" actualizado con éxito!`
-            : `¡Proyecto "${title}" publicado en tu portafolio!`
-        );
-    } catch (err) {
-        showStatus('error', 'Error al publicar: ' + err.message);
-    } finally {
-        publishBtn.disabled = false;
-        publishBtn.innerHTML = '<i class="fas fa-rocket"></i> Publicar Proyecto';
-    }
-}
-
-window.startEditItem = function(id) {
-    const item = portfolioState.items.find(i => String(i.id) === String(id));
-    if (!item) return;
-
-    document.getElementById('editingItemId').value = item.id;
-    document.getElementById('itemTitle').value = item.title || '';
-    document.getElementById('itemCategory').value = item.category || portfolioState.categories[0]?.slug || 'retratos';
-    document.getElementById('itemProjectType').value = item.projectType || 'Sesión Fotográfica';
-    document.getElementById('itemClient').value = item.client || '';
-    document.getElementById('itemYear').value = item.year || '2026';
-    document.getElementById('itemDescription').value = item.description || '';
-    document.getElementById('itemUrl').value = /^https?:\/\//i.test(item.src) ? item.src : '';
-    document.getElementById('itemTags').value = Array.isArray(item.tags) ? item.tags.join(', ') : '';
-    document.getElementById('itemFeatured').checked = Boolean(item.featured);
-    document.getElementById('itemHeroImage').checked = Boolean(portfolioState.heroImage && item.src === portfolioState.heroImage);
-    document.getElementById('itemAboutImage').checked = Boolean(portfolioState.aboutImage && item.src === portfolioState.aboutImage);
-    document.getElementById('itemHeroVideo').checked = Boolean(portfolioState.heroVideo && item.src === portfolioState.heroVideo);
-    document.getElementById('itemHeroShowreel').checked = Boolean(portfolioState.showreelVideo && item.src === portfolioState.showreelVideo);
-
-    document.getElementById('formCardTitle').innerHTML = `<i class="fas fa-edit"></i> Editando: ${escapeHtml(item.title)}`;
-    document.getElementById('publishBtn').innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
-    document.getElementById('cancelEditBtn').style.display = 'inline-flex';
-    document.getElementById('uploadForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
-};
-
-function resetFormMode() {
-    document.getElementById('uploadForm').reset();
-    document.getElementById('editingItemId').value = '';
-    document.getElementById('filePreviewBox').innerHTML = '';
-    document.getElementById('formCardTitle').innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Subir Nuevo Proyecto';
-    document.getElementById('publishBtn').innerHTML = '<i class="fas fa-rocket"></i> Publicar Proyecto';
-    document.getElementById('cancelEditBtn').style.display = 'none';
-}
-
-window.toggleFeaturedItem = async function(id) {
-    const item = portfolioState.items.find(i => String(i.id) === String(id));
-    if (!item) return;
-    item.featured = !item.featured;
-    renderAdminItems();
-
-    const cfg = getConfig();
-    if (cfg.owner && cfg.repo && cfg.token) {
-        try {
-            showStatus('info', 'Actualizando estado destacado...');
-            await savePortfolioJson(portfolioState, `Destacar/ocultar proyecto: ${item.title}`);
-            showStatus('success', `Estado destacado actualizado para "${item.title}".`);
-        } catch (err) {
-            showStatus('error', 'Error al guardar: ' + err.message);
-        }
-    }
-};
-
-window.deleteItem = async function(id) {
-    if (!confirm('¿Seguro que deseas eliminar este proyecto del portafolio?')) return;
-
-    const item = portfolioState.items.find(i => String(i.id) === String(id));
-    portfolioState.items = portfolioState.items.filter(i => String(i.id) !== String(id));
-    if (item && portfolioState.heroImage === item.src) {
-        portfolioState.heroImage = '';
-    }
-    if (item && portfolioState.aboutImage === item.src) {
-        portfolioState.aboutImage = '';
-    }
-    if (item && portfolioState.heroVideo === item.src) {
-        portfolioState.heroVideo = '';
-    }
-    if (item && portfolioState.showreelVideo === item.src) {
-        portfolioState.showreelVideo = '';
-    }
-    renderAdminItems();
-
-    const cfg = getConfig();
-    if (cfg.owner && cfg.repo && cfg.token) {
-        try {
-            showStatus('info', 'Eliminando proyecto de portfolio.json...');
-            await savePortfolioJson(portfolioState, `Eliminar proyecto: ${item?.title || id}`);
-            showStatus('success', 'Proyecto eliminado correctamente.');
-        } catch (err) {
-            showStatus('error', 'Error al eliminar en GitHub: ' + err.message);
-        }
-    }
-};
-
-function getCategoryDisplayName(slug) {
-    const found = portfolioState.categories.find(c => c.slug === slug);
-    return found ? found.name : slug;
-}
-
-function renderAdminItems() {
-    const list = document.getElementById('adminItemsList');
-    const countEl = document.getElementById('itemsCount');
-    const searchVal = (document.getElementById('adminSearchInput')?.value || '').toLowerCase().trim();
-    const filterCat = document.getElementById('adminFilterCategory')?.value || 'all';
-
-    const filtered = portfolioState.items.filter(item => {
-        const matchesCat = filterCat === 'all' || item.category === filterCat;
-        const haystack = [
-            item.title,
-            item.description,
-            item.client,
-            item.projectType,
-            ...(Array.isArray(item.tags) ? item.tags : [])
-        ].join(' ').toLowerCase();
-        const matchesSearch = !searchVal || haystack.includes(searchVal);
-        return matchesCat && matchesSearch;
-    });
-
-    countEl.textContent = filtered.length;
-
-    if (filtered.length === 0) {
-        list.innerHTML = '<p style="color: var(--secondary);">No hay proyectos que coincidan con el filtro.</p>';
-        return;
-    }
-
-    list.innerHTML = filtered.map(item => {
-        const isVideo = item.type === 'video';
-        const mediaHtml = isVideo
-            ? `<video src="${escapeAttr(item.src)}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()"></video>`
-            : `<img src="${escapeAttr(item.src)}" alt="${escapeAttr(item.title)}" loading="lazy">`;
-
-        const subLine = [item.projectType, item.client, item.year].filter(Boolean).join(' · ');
-
-        return `
-            <div class="admin-item-card">
-                <div class="admin-item-media">
-                    ${mediaHtml}
-                    ${item.featured ? '<span class="badge-featured">DESTACADO</span>' : ''}
-                    <span class="badge-type">${isVideo ? 'VIDEO' : 'FOTO'}</span>
+    <main class="admin-main">
+        <!-- COLUMNA IZQUIERDA -->
+        <div>
+            <!-- 1. CONEXIÓN GITHUB -->
+            <div class="panel-card">
+                <h2><i class="fab fa-github"></i> Conexión a tu Repositorio GitHub</h2>
+                <p style="color: var(--secondary); font-size: 0.84rem; margin-bottom: 1rem;">
+                    Configúralo una sola vez. Permite subir fotos, videos, categorías y proyectos directamente a tu repositorio.
+                </p>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Usuario de GitHub (Owner)</label>
+                        <input type="text" id="ghOwner" placeholder="Ej: fredyculqui">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre del Repositorio</label>
+                        <input type="text" id="ghRepo" placeholder="Ej: fredy-culqui-website">
+                    </div>
                 </div>
-                <div class="admin-item-body">
-                    <div>
-                        <small>${escapeHtml(getCategoryDisplayName(item.category))}</small>
-                        <h4>${escapeHtml(item.title)}</h4>
-                        ${subLine ? `<p style="margin-bottom:0.35rem; color:#d4d4d4;">${escapeHtml(subLine)}</p>` : ''}
-                        <p>${escapeHtml(item.description || 'Sin descripción')}</p>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Rama (Branch)</label>
+                        <input type="text" id="ghBranch" value="main" placeholder="main">
                     </div>
-                    <div class="admin-item-actions">
-                        <button type="button" class="btn btn-outline btn-sm" onclick="startEditItem('${escapeAttr(item.id)}')">
-                            <i class="fas fa-edit"></i> Editar
+                    <div class="form-group">
+                        <label>Carpeta Base en Repo (opcional)</label>
+                        <input type="text" id="ghBasePath" placeholder="Ej: fredy-culqui-website-v2 o vacío">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Personal Access Token (Permiso: repo / contents)</label>
+                    <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                </div>
+                <button type="button" id="saveGithubConfig" class="btn btn-outline" style="width: 100%;">
+                    <i class="fas fa-save"></i> Guardar y Conectar Repositorio
+                </button>
+            </div>
+
+            <!-- 2. GESTOR DE CATEGORÍAS -->
+            <div class="panel-card">
+                <h2><i class="fas fa-tags"></i> Categorías del Portafolio</h2>
+                <p style="color: var(--secondary); font-size: 0.84rem; margin-bottom: 0.85rem;">
+                    Agrega o elimina categorías (fotografía, video, marca, eventos, campañas, etc.).
+                </p>
+                <div class="form-row-2">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Nombre de Categoría</label>
+                        <input type="text" id="newCategoryName" placeholder="Ej: Videoclips / Marca">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Slug / Identificador (opcional)</label>
+                        <input type="text" id="newCategorySlug" placeholder="Ej: videoclips">
+                    </div>
+                </div>
+                <button type="button" id="addCategoryBtn" class="btn btn-outline" style="width:100%; margin-top:0.85rem;">
+                    <i class="fas fa-plus"></i> Agregar y Guardar Categoría
+                </button>
+                <div class="category-chips" id="categoryChipsList"></div>
+            </div>
+
+            <!-- 3. AGENDAR SESIÓN -->
+            <div class="panel-card">
+                <h2><i class="fas fa-calendar-plus"></i> Agendar Sesión</h2>
+                <p style="color: var(--secondary); font-size: 0.84rem; margin-bottom: 1rem;">
+                    Registra los datos del cliente para tener tus sesiones organizadas.
+                </p>
+                <form id="bookingForm">
+                    <div class="form-group">
+                        <label>Nombre Completo *</label>
+                        <input type="text" id="bookingName" required placeholder="Ej: Carlos Mendoza">
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label>Número de DNI *</label>
+                            <input type="text" id="bookingDni" required maxlength="12" placeholder="Ej: 74859612">
+                        </div>
+                        <div class="form-group">
+                            <label>Número (Celular / WhatsApp) *</label>
+                            <input type="tel" id="bookingPhone" required placeholder="Ej: 967620685">
+                        </div>
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label>Fecha de Sesión</label>
+                            <input type="date" id="bookingDate">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de Sesión</label>
+                            <select id="bookingType">
+                                <option value="Sesión Fotográfica">Sesión Fotográfica</option>
+                                <option value="Producción Filmmaker / Video">Producción Filmmaker / Video</option>
+                                <option value="15 Años / Evento">15 Años / Evento</option>
+                                <option value="Retrato Editorial / Marca">Retrato Editorial / Marca</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notas / Locación / Paquete</label>
+                        <input type="text" id="bookingNotes" placeholder="Ej: Centro histórico Cajamarca, 2 cambios">
+                    </div>
+
+                    <button type="submit" id="saveBookingBtn" class="btn btn-primary" style="width:100%;">
+                        <i class="fas fa-calendar-check"></i> Guardar Sesión Agendada
+                    </button>
+                </form>
+            </div>
+
+            <!-- 4. SUBIR / EDITAR PROYECTO -->
+            <div class="panel-card">
+                <h2 id="formCardTitle"><i class="fas fa-cloud-upload-alt"></i> Subir Nuevo Proyecto</h2>
+                <div id="statusBox" class="status-box"></div>
+
+                <form id="uploadForm">
+                    <input type="hidden" id="editingItemId" value="">
+
+                    <div class="form-group">
+                        <label>Título del Proyecto *</label>
+                        <input type="text" id="itemTitle" required placeholder="Ej: Campaña Editorial Otoño o Videoclip 4K">
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label>Categoría *</label>
+                            <select id="itemCategory" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de Proyecto</label>
+                            <select id="itemProjectType">
+                                <option value="Sesión Fotográfica">Sesión Fotográfica</option>
+                                <option value="Producción Audiovisual">Producción Audiovisual</option>
+                                <option value="Reel / Contenido Redes">Reel / Contenido Redes</option>
+                                <option value="Videoclip Musical">Videoclip Musical</option>
+                                <option value="Cobertura de Evento">Cobertura de Evento</option>
+                                <option value="Proyecto de Marca">Proyecto de Marca</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label>Cliente / Marca (opcional)</label>
+                            <input type="text" id="itemClient" placeholder="Ej: Café Cajamarca / Artista">
+                        </div>
+                        <div class="form-group">
+                            <label>Año / Fecha</label>
+                            <input type="text" id="itemYear" value="2026" placeholder="2026">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descripción / Locación / Concepto</label>
+                        <textarea id="itemDescription" rows="2" placeholder="Ej: Locación exterior, dirección de luz y color grading cinematográfico"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fotos o Video Principal (puedes seleccionar varias fotos)</label>
+                        <input type="file" id="itemFile" accept="image/*,video/mp4,video/webm" multiple>
+                        <div class="preview-box" id="filePreviewBox"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>O URL externa de Foto / Video (opcional si subes archivo)</label>
+                        <input type="url" id="itemUrl" placeholder="https://...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Etiquetas / Tags (separadas por coma)</label>
+                        <input type="text" id="itemTags" placeholder="Ej: 4k, editorial, retrato, color pro">
+                    </div>
+
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="itemFeatured" checked>
+                        <span>Mostrar en "Trabajos Destacados" del Inicio (index.html)</span>
+                    </label>
+
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="itemHeroImage">
+                        <span>Usar esta imagen como foto principal de portada del Inicio (index.html)</span>
+                    </label>
+
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="itemAboutImage">
+                        <span>Usar esta imagen en la sección "Sobre Mí" (sobre-mi.html)</span>
+                    </label>
+
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="itemHeroVideo">
+                        <span>Usar este video como fondo principal del Inicio (solo MP4)</span>
+                    </label>
+
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="itemHeroShowreel">
+                        <span>Mostrar este video en la tarjeta Filmmaker del Inicio (MP4/WEBM)</span>
+                    </label>
+
+                    <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.75rem;">
+                        <button type="submit" id="publishBtn" class="btn btn-primary" style="flex:1;">
+                            <i class="fas fa-rocket"></i> Publicar Proyecto
                         </button>
-                        <button type="button" class="btn btn-outline btn-sm" onclick="toggleFeaturedItem('${escapeAttr(item.id)}')">
-                            <i class="fas fa-star"></i> ${item.featured ? 'Quitar' : 'Destacar'}
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteItem('${escapeAttr(item.id)}')">
-                            <i class="fas fa-trash"></i>
+                        <button type="button" id="cancelEditBtn" class="btn btn-outline" style="display:none;">
+                            Cancelar Edición
                         </button>
                     </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- COLUMNA DERECHA: LISTADO, FILTROS Y SESIONES AGENDADAS -->
+        <div>
+            <div class="panel-card">
+                <div class="list-toolbar">
+                    <h2 style="margin: 0;"><i class="fas fa-calendar-alt"></i> Sesiones Agendadas (<span id="bookingsCount">0</span>)</h2>
+                </div>
+                <div class="bookings-grid" id="adminBookingsList">
+                    <p style="color: var(--secondary);">Aún no hay sesiones agendadas.</p>
                 </div>
             </div>
-        `;
-    }).join('');
-}
 
-function escapeHtml(str) {
-    return String(str || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-}
+            <div class="panel-card">
+                <div class="list-toolbar">
+                    <h2 style="margin: 0;"><i class="fas fa-layer-group"></i> Proyectos Publicados (<span id="itemsCount">0</span>)</h2>
+                    <button type="button" id="reloadItemsBtn" class="btn btn-outline btn-sm" style="flex:0 0 auto;">
+                        <i class="fas fa-sync"></i> Actualizar
+                    </button>
+                </div>
 
-function escapeAttr(str) {
-    return String(str || '')
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-}
+                <div class="filter-mini-row">
+                    <input type="text" id="adminSearchInput" placeholder="Buscar por título, cliente o tag..." style="flex:1; min-width:180px;">
+                    <select id="adminFilterCategory">
+                        <option value="all">Todas las categorías</option>
+                    </select>
+                </div>
+
+                <div class="items-list" id="adminItemsList">
+                    <p style="color: var(--secondary);">Conecta tu repositorio o recarga para ver tus publicaciones.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
