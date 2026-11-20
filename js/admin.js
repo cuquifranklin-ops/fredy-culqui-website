@@ -44,6 +44,11 @@ function showStatus(type, msg) {
     box.innerHTML = msg;
 }
 
+function formatMoney(val) {
+    const num = Number(val);
+    return `S/ ${(Number.isFinite(num) ? num : 0).toFixed(2)}`;
+}
+
 function slugifyCategory(text) {
     return String(text || '')
         .toLowerCase()
@@ -143,6 +148,8 @@ async function handleAddBooking(e) {
     const name = document.getElementById('bookingName').value.trim();
     const dni = document.getElementById('bookingDni').value.trim();
     const phone = document.getElementById('bookingPhone').value.trim();
+    const price = parseFloat(document.getElementById('bookingPrice').value) || 0;
+    const transport = parseFloat(document.getElementById('bookingTransport').value) || 0;
     const date = document.getElementById('bookingDate').value;
     const type = document.getElementById('bookingType').value;
     const notes = document.getElementById('bookingNotes').value.trim();
@@ -157,6 +164,8 @@ async function handleAddBooking(e) {
         name,
         dni,
         phone,
+        price,
+        transport,
         date,
         type,
         notes,
@@ -165,6 +174,7 @@ async function handleAddBooking(e) {
 
     portfolioState.bookings.unshift(booking);
     document.getElementById('bookingForm').reset();
+    document.getElementById('bookingTransport').value = '0';
     renderBookingsList();
 
     const cfg = getConfig();
@@ -172,7 +182,7 @@ async function handleAddBooking(e) {
         try {
             showStatus('info', `Guardando sesión de ${name}...`);
             await savePortfolioJson(portfolioState, `Agendar sesión: ${name}`);
-            showStatus('success', `Sesión agendada para ${name} (DNI: ${dni}).`);
+            showStatus('success', `Sesión agendada para ${name} · Sesión: ${formatMoney(price)} | Pasaje: ${formatMoney(transport)}.`);
         } catch (err) {
             showStatus('error', 'Sesión agregada localmente, pero falló al guardar en GitHub: ' + err.message);
         }
@@ -201,10 +211,24 @@ window.deleteBooking = async function(id) {
 function renderBookingsList() {
     const container = document.getElementById('adminBookingsList');
     const countEl = document.getElementById('bookingsCount');
+    const totalSessionsEl = document.getElementById('totalSessionsAmount');
+    const totalTransportEl = document.getElementById('totalTransportAmount');
+    const totalOverallEl = document.getElementById('totalOverallAmount');
     if (!container) return;
 
     const list = Array.isArray(portfolioState.bookings) ? portfolioState.bookings : [];
     if (countEl) countEl.textContent = list.length;
+
+    let sumSessions = 0;
+    let sumTransport = 0;
+    list.forEach(b => {
+        sumSessions += Number(b.price) || 0;
+        sumTransport += Number(b.transport) || 0;
+    });
+
+    if (totalSessionsEl) totalSessionsEl.textContent = formatMoney(sumSessions);
+    if (totalTransportEl) totalTransportEl.textContent = formatMoney(sumTransport);
+    if (totalOverallEl) totalOverallEl.textContent = formatMoney(sumSessions + sumTransport);
 
     if (list.length === 0) {
         container.innerHTML = '<p style="color: var(--secondary);">Aún no hay sesiones agendadas.</p>';
@@ -216,6 +240,8 @@ function renderBookingsList() {
         const waLink = cleanPhone
             ? `<a href="https://wa.me/${cleanPhone.startsWith('51') ? cleanPhone : '51' + cleanPhone}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm"><i class="fab fa-whatsapp"></i> WhatsApp</a>`
             : '';
+        const sessionPrice = Number(b.price) || 0;
+        const transportPrice = Number(b.transport) || 0;
 
         return `
             <div class="booking-card">
@@ -230,6 +256,11 @@ function renderBookingsList() {
                         <div><i class="fas fa-camera"></i>${escapeHtml(b.type || 'Sesión Fotográfica')}</div>
                         ${b.date ? `<div><i class="fas fa-calendar"></i>${escapeHtml(b.date)}</div>` : ''}
                         ${b.notes ? `<div><i class="fas fa-sticky-note"></i>${escapeHtml(b.notes)}</div>` : ''}
+                    </div>
+                    <div class="booking-money-pill">
+                        <span>Sesión: <strong>${formatMoney(sessionPrice)}</strong></span>
+                        <span>Pasaje: <strong>${formatMoney(transportPrice)}</strong></span>
+                        <span style="color:#ff6b8b;">Total: <strong>${formatMoney(sessionPrice + transportPrice)}</strong></span>
                     </div>
                 </div>
                 <div class="admin-item-actions">
