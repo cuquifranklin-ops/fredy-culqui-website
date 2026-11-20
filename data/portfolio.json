@@ -27,6 +27,16 @@
   ],
   "bookings": [
     {
+      "id": "1795147809041",
+      "name": "Valeria",
+      "dni": "61979192",
+      "phone": "932100803",
+      "date": "2026-11-21",
+      "type": "Sesión Fotográfica",
+      "notes": "Iglesia Belen",
+      "status": "Agendada"
+    },
+    {
       "id": "1795147743439",
       "name": "Carla Guerrero Suárez",
       "dni": "000000",
